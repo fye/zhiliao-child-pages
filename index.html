@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知了错题 · 小孩端 Portal 三主题对比</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ RESET ═══════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  background:#D6D3D1;display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;padding:12px 8px 20px;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ═══════ THEME SWITCHER ═══════ */
+.theme-picker{display:flex;gap:6px;margin-bottom:10px;background:white;padding:4px;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);flex-wrap:wrap;justify-content:center}
+.theme-picker button{padding:10px 18px;border:none;border-radius:11px;font-size:13px;cursor:pointer;font-weight:600;color:#78716C;background:transparent;transition:all .15s;font-family:inherit}
+.theme-picker button.active{font-weight:700}
+.theme-picker button.active.cosmic{background:#F5C51822;color:#F5C518}
+.theme-picker button.active.island{background:#FF6B6B22;color:#FF6B6B}
+.theme-picker button.active.forest{background:#4CAF5022;color:#2D5A27}
+
+/* ═══════ DEVICE FRAME ═══════ */
+.device{width:100%;max-width:1180px;min-height:720px;border-radius:16px;overflow:hidden;display:flex;box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative;transition:background .35s,color .35s}
+
+/* ═══════ SIDEBAR ═══════ */
+.sidebar{width:260px;min-width:260px;display:flex;flex-direction:column;border-right:1px solid var(--border);transition:background .35s}
+.sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.child-profile{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.child-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;position:relative}
+.child-avatar .level-badge{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-sidebar)}
+.child-info .child-name{font-size:16px;font-weight:700;color:var(--text-primary);line-height:1.2}
+.child-info .child-grade{font-size:12px;color:var(--text-secondary)}
+
+.xp-section{margin-top:2px}
+.xp-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.xp-label span:first-child{color:var(--text-secondary)}
+.xp-label .xp-num{color:var(--accent);font-weight:700}
+.xp-bar{height:6px;border-radius:3px;overflow:hidden;background:var(--xp-bg)}
+.xp-bar .fill{height:100%;border-radius:3px;transition:width .5s}
+
+.sidebar-nav{flex:1;padding:8px 12px;display:flex;flex-direction:column;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);margin-bottom:2px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-secondary);transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:var(--hover-bg)}
+.nav-item.active{background:var(--active-bg);color:var(--accent);font-weight:700}
+.nav-item .nav-icon{font-size:20px;width:24px;text-align:center;flex-shrink:0}
+.nav-item .nav-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
+.nav-divider{height:1px;background:var(--border);margin:8px 14px}
+
+.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
+.sidebar-footer .nav-item{font-size:13px;padding:10px 14px}
+
+/* ═══════ MAIN CONTENT ═══════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.main-header{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.main-title{font-size:20px;font-weight:700;color:var(--text-primary)}
+.main-actions{display:flex;gap:8px;align-items:center}
+.main-body{flex:1;overflow-y:auto;padding:24px 28px 32px}
+.main-body::-webkit-scrollbar{width:5px}
+.main-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ═══════ SCREENS ═══════ */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ═══════ HOME DASHBOARD ═══════ */
+.hero-card{border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;gap:28px;position:relative;overflow:hidden}
+.hero-card .hero-illustration{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:64px;flex-shrink:0;position:relative}
+.hero-card .hero-text{flex:1}
+.hero-card .hero-greeting{font-size:13px;color:var(--text-secondary);margin-bottom:4px}
+.hero-card .hero-question{font-size:22px;font-weight:700;color:var(--text-primary);line-height:1.3;margin-bottom:8px}
+.hero-card .hero-stats{display:flex;gap:24px;margin-top:12px}
+.hero-stat{text-align:center}
+.hero-stat .hs-num{font-size:24px;font-weight:800;line-height:1}
+.hero-stat .hs-label{font-size:11px;color:var(--text-secondary);margin-top:3px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.stat-card-g{background:var(--bg-card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
+.stat-card-g:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-card-g .scg-icon{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.stat-card-g .scg-info{flex:1;min-width:0}
+.stat-card-g .scg-num{font-size:26px;font-weight:800;color:var(--text-primary);line-height:1}
+.stat-card-g .scg-label{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.stat-card-g .scg-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+.quest-section{margin-bottom:24px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.section-head .sh-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+.section-head .sh-more{font-size:13px;color:var(--accent);cursor:pointer;font-weight:600}
+
+.quest-card{background:var(--bg-card);border-radius:var(--radius);padding:16px 20px;border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s}
+.quest-card:hover{box-shadow:var(--shadow-sm)}
+.quest-card .qc-rank{font-size:22px;font-weight:800;width:36px;text-align:center;flex-shrink:0}
+.quest-card .qc-icon{font-size:28px;flex-shrink:0}
+.quest-card .qc-info{flex:1;min-width:0}
+.quest-card .qc-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:2px}
+.quest-card .qc-meta{font-size:12px;color:var(--text-secondary)}
+.quest-card .qc-action{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s}
+
+/* ═══════ PAPER LIST ═══════ */
+.filter-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.filter-pill{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-secondary);font-family:inherit;transition:all .15s}
+.filter-pill.active{background:var(--active-bg);color:var(--accent);border-color:var(--accent-light)}
+.paper-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.paper-card{background:var(--bg-card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.paper-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.paper-card .pc-img{height:140px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.paper-card .pc-img .paper-mock{width:160px;height:100px;background:var(--surface-bg);border:1px solid var(--border);border-radius:3px;padding:12px 10px;display:flex;flex-direction:column;gap:5px}
+.paper-mock .pl{height:2px;background:var(--border);border-radius:1px}.paper-mock .pl.s{width:55%}.paper-mock .pl.m{width:75%}
+.paper-card .pc-badge{position:absolute;top:8px;right:8px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.paper-card .pc-body{padding:14px 16px}
+.paper-card .pc-name{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.paper-card .pc-date{font-size:12px;color:var(--text-secondary)}
+
+/* ═══════ PAPER DETAIL ═══════ */
+.detail-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.detail-header .back-link{font-size:14px;color:var(--accent);cursor:pointer;font-weight:600;font-family:inherit;border:none;background:none}
+.paper-preview{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:24px;background:var(--bg-card)}
+.paper-preview .pp-img{height:200px;display:flex;align-items:center;justify-content:center;position:relative}
+.pp-img .paper-mock-lg{width:220px;height:160px;background:white;border:1px solid var(--border);border-radius:3px;padding:16px 14px;display:flex;flex-direction:column;gap:7px}
+.pp-img .paper-mock-lg .pll{height:2px;background:var(--border);border-radius:1px}.pll.s{width:50%}.pll.m{width:70%}
+.pp-img .paper-mock-lg .mark{color:var(--danger);font-size:18px;font-weight:700;text-align:right}
+.pp-img .tap-to-zoom{position:absolute;bottom:8px;right:12px;font-size:11px;padding:3px 10px;border-radius:8px;background:rgba(0,0,0,.5);color:white}
+.paper-preview .pp-info{padding:14px 20px;border-top:1px solid var(--border)}
+.paper-preview .pp-name{font-size:16px;font-weight:700;color:var(--text-primary)}
+.paper-preview .pp-meta{font-size:13px;color:var(--text-secondary);margin-top:2px}
+
+.mistake-list h3{font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+.mistake-card{background:var(--bg-card);border-radius:var(--radius);padding:18px 20px;border:1px solid var(--border);margin-bottom:10px}
+.mistake-card .mc-top{display:flex;gap:14px;margin-bottom:12px}
+.mistake-card .mc-thumb{width:70px;height:70px;border-radius:var(--radius-sm);flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.mc-thumb .mc-mini{width:48px;display:flex;flex-direction:column;gap:3px}
+.mc-mini .mcm{height:2px;background:var(--text-muted);border-radius:1px;opacity:.5}.mcm.s{width:50%}.mcm.m{width:70%}
+.mistake-card .mc-main{flex:1;min-width:0}
+.mistake-card .mc-kp{font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;margin-bottom:3px}
+.mistake-card .mc-score{font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.mistake-card .mc-body{font-size:13px;line-height:1.6;color:var(--text-secondary)}
+.mistake-card .mc-body .mcb-label{font-size:11px;color:var(--text-muted);margin-bottom:1px}
+.mistake-card .mc-body .mcb-val{margin-bottom:8px;color:var(--text-primary)}
+.mistake-card .mc-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.btn-sm{padding:7px 16px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.btn-primary-sm{background:var(--accent);color:white}
+.btn-primary-sm:hover{filter:brightness(1.1)}
+.btn-outline-sm{border:1px solid var(--accent);color:var(--accent);background:transparent}
+
+/* ═══════ KNOWLEDGE MAP ═══════ */
+.domain-section{margin-bottom:28px}
+.domain-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.domain-header .dh-icon{font-size:24px}
+.domain-header .dh-name{font-size:16px;font-weight:700;color:var(--text-primary)}
+.domain-header .dh-count{font-size:12px;color:var(--text-secondary)}
+.knode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.knode{background:var(--bg-card);border-radius:var(--radius);padding:16px;border:2px solid transparent;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.knode:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.knode .kn-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;line-height:1.3}
+.knode .kn-score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.knode .kn-score{font-size:18px;font-weight:800}
+.knode .kn-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700}
+.knode .kn-bar{height:4px;border-radius:2px;overflow:hidden;background:var(--hover-bg)}
+.knode .kn-bar .fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* ═══════ KNOWLEDGE DETAIL ═══════ */
+.kd-overview{background:var(--bg-card);border-radius:var(--radius-lg);padding:28px 32px;text-align:center;margin-bottom:24px;border:1px solid var(--border)}
+.kd-overview .kd-name{font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:6px}
+.kd-overview .kd-status{font-size:14px;font-weight:600;margin-bottom:14px}
+.kd-overview .kd-score-num{font-size:48px;font-weight:900;line-height:1;letter-spacing:-1px}
+.kd-overview .kd-score-label{font-size:13px;color:var(--text-secondary);margin-bottom:12px}
+.kd-progress{height:8px;border-radius:4px;overflow:hidden;background:var(--hover-bg);width:240px;margin:0 auto 14px}
+.kd-progress .fill{height:100%;border-radius:4px}
+.kd-stats-row{display:flex;justify-content:center;gap:32px}
+.kd-stat{text-align:center}
+.kd-stat .kds-num{font-size:20px;font-weight:700;color:var(--text-primary)}
+.kd-stat .kds-label{font-size:11px;color:var(--text-secondary);margin-top:2px}
+
+.explanation-section{margin-bottom:24px}
+.explanation-section .es-title{font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:14px}
+.explain-card{background:var(--bg-card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:12px}
+.explain-card h4{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:8px}
+.explain-card p,.explain-card .ec-steps{font-size:13px;line-height:1.8;color:var(--text-secondary)}
+.explain-card .ec-steps .step{margin-bottom:6px;padding-left:8px}
+.explain-card .ec-steps .step .step-num{font-weight:700;color:var(--accent);margin-right:4px}
+.video-placeholder{background:var(--hover-bg);border-radius:var(--radius-sm);height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;margin-top:12px;cursor:pointer;border:2px dashed var(--border)}
+.video-placeholder .vp-icon{font-size:36px}
+.video-placeholder .vp-text{font-size:12px;color:var(--text-muted)}
+
+/* ═══════ PRACTICE ═══════ */
+.practice-header{text-align:center;margin-bottom:28px}
+.practice-header .ph-badge{display:inline-block;padding:4px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:10px}
+.practice-header .ph-knowledge{font-size:22px;font-weight:800;color:var(--text-primary)}
+.practice-header .ph-hint{font-size:13px;color:var(--text-secondary);margin-top:4px}
+.question-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:28px 32px;border:1px solid var(--border);max-width:640px;margin:0 auto 20px}
+.question-card .q-number{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:12px}
+.question-card .q-text{font-size:18px;font-weight:600;color:var(--text-primary);line-height:1.6;margin-bottom:24px}
+.answer-area{display:flex;gap:12px;align-items:center}
+.answer-area input{flex:1;padding:14px 18px;border-radius:var(--radius);border:2px solid var(--border);font-size:18px;font-weight:600;background:var(--bg-base);color:var(--text-primary);font-family:inherit;transition:border-color .2s}
+.answer-area input:focus{outline:none;border-color:var(--accent)}
+.answer-area .submit-btn{padding:14px 28px;border-radius:var(--radius);font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .15s;background:var(--accent);color:white}
+.answer-area .submit-btn:hover{filter:brightness(1.1)}
+
+.feedback-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:24px 28px;border:2px solid var(--border);max-width:640px;margin:0 auto 20px;display:none;animation:fadeIn .3s}
+.feedback-card.show{display:block}
+.feedback-card.correct{border-color:var(--success)}
+.feedback-card.wrong{border-color:var(--danger)}
+.feedback-card .fb-icon{font-size:40px;margin-bottom:10px}
+.feedback-card .fb-title{font-size:17px;font-weight:700;margin-bottom:8px}
+.feedback-card .fb-detail{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px}
+.feedback-card .fb-score{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:14px}
+.feedback-card .fb-actions{display:flex;gap:10px}
+.btn-big{padding:10px 24px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.btn-solid{background:var(--accent);color:white}
+.btn-ghost{border:2px solid var(--border);background:transparent;color:var(--text-secondary)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════ THEME 1: STAR EXPLORER ═══════ */
+.theme-cosmic{
+  --bg-base:#111130;--bg-surface:#161539;--bg-card:#1A1945;
+  --bg-sidebar:#0C0B26;--hover-bg:rgba(255,255,255,.05);
+  --active-bg:rgba(245,197,24,.12);
+  --text-primary:#F0EDE8;--text-secondary:#9B96B8;--text-muted:#6B6790;
+  --accent:#F5C518;--accent-light:#F5C51844;
+  --accent-2:#7EC8E3;--accent-3:#FF6B9D;
+  --success:#4ADE80;--warning:#F59E0B;--danger:#F87171;
+  --border:rgba(255,255,255,.08);--surface-bg:#222158;
+  --xp-bg:rgba(255,255,255,.1);
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.15);
+  --shadow-md:0 4px 20px rgba(0,0,0,.25);
+  --hero-bg:linear-gradient(135deg,#1A1550 0%,#162040 100%);
+}
+.theme-cosmic .child-avatar{background:linear-gradient(135deg,#F5C518,#FF8C00);color:#1A1945}
+.theme-cosmic .child-avatar .level-badge{background:#FF6B9D;color:white}
+.theme-cosmic .hero-card{background:var(--hero-bg);border:1px solid rgba(126,200,227,.12)}
+.theme-cosmic .hero-card .hero-illustration{background:radial-gradient(circle,rgba(126,200,227,.15),transparent 70%)}
+.theme-cosmic .hs-num{color:var(--accent)}
+.theme-cosmic .scg-icon{background:rgba(245,197,24,.1)}
+.theme-cosmic .qc-rank{color:var(--accent)}
+.theme-cosmic .qc-action{background:var(--accent);color:#111130}
+.theme-cosmic .knode{border-color:rgba(255,255,255,.06)}
+.theme-cosmic .knode:hover{border-color:var(--accent-light)}
+.theme-cosmic .kn-score{color:var(--accent)}
+.theme-cosmic .feedback-card.correct .fb-title{color:var(--success)}
+.theme-cosmic .feedback-card.wrong .fb-title{color:var(--danger)}
+.theme-cosmic .paper-card .pc-img{background:linear-gradient(135deg,#1E1C52,#252358)}
+.theme-cosmic .paper-mock,.paper-mock-lg{background:#252450;border-color:rgba(255,255,255,.1)}
+.theme-cosmic .paper-mock .pl{background:rgba(255,255,255,.15)}
+.theme-cosmic .pp-img .paper-mock-lg{background:#252450;border-color:rgba(255,255,255,.1)}
+.theme-cosmic .pp-img .paper-mock-lg .pll{background:rgba(255,255,255,.15)}
+.theme-cosmic .pp-img .paper-mock-lg .mark{color:var(--danger)}
+.theme-cosmic .mc-thumb{background:linear-gradient(135deg,#1E1C52,#252358);border-color:rgba(255,255,255,.08)}
+
+/* ═══════ THEME 2: ADVENTURE ISLAND ═══════ */
+.theme-island{
+  --bg-base:#FFF8E7;--bg-surface:#FFFBF2;--bg-card:#FFFFFF;
+  --bg-sidebar:#F5EDD6;--hover-bg:rgba(139,115,85,.08);
+  --active-bg:rgba(255,107,107,.1);
+  --text-primary:#3D2B1F;--text-secondary:#8B7355;--text-muted:#B8A088;
+  --accent:#FF6B6B;--accent-light:#FF6B6B33;
+  --accent-2:#2E8B8B;--accent-3:#E8B44F;
+  --success:#4CAF50;--warning:#F59E0B;--danger:#EF4444;
+  --border:rgba(139,115,85,.12);--surface-bg:#FAF5EB;
+  --xp-bg:rgba(139,115,85,.1);
+  --radius:14px;--radius-sm:10px;--radius-lg:18px;
+  --shadow-sm:0 2px 8px rgba(139,115,85,.08);
+  --shadow-md:0 4px 16px rgba(139,115,85,.12);
+  --hero-bg:linear-gradient(135deg,#FFF3E0 0%,#FFF8E1 100%);
+}
+.theme-island .child-avatar{background:linear-gradient(135deg,#FF6B6B,#E8B44F);color:white}
+.theme-island .child-avatar .level-badge{background:#2E8B8B;color:white}
+.theme-island .hero-card{background:var(--hero-bg);border:1px solid rgba(232,180,79,.2)}
+.theme-island .hero-card .hero-illustration{background:radial-gradient(circle,rgba(46,139,139,.1),transparent 70%)}
+.theme-island .hs-num{color:var(--accent)}
+.theme-island .scg-icon{background:rgba(255,107,107,.08)}
+.theme-island .qc-rank{color:var(--accent)}
+.theme-island .qc-action{background:var(--accent);color:white}
+.theme-island .knode{border-color:rgba(139,115,85,.1)}
+.theme-island .knode:hover{border-color:var(--accent-light)}
+.theme-island .kn-score{color:var(--accent)}
+.theme-island .feedback-card.correct .fb-title{color:var(--success)}
+.theme-island .feedback-card.wrong .fb-title{color:var(--danger)}
+.theme-island .paper-card .pc-img{background:linear-gradient(135deg,#FFFBF2,#F5EDD6)}
+.theme-island .paper-mock,.paper-mock-lg{background:#FFFBF2;border-color:rgba(139,115,85,.15)}
+.theme-island .paper-mock .pl{background:rgba(139,115,85,.15)}
+.theme-island .pp-img .paper-mock-lg{background:#FFFBF2;border-color:rgba(139,115,85,.15)}
+.theme-island .pp-img .paper-mock-lg .pll{background:rgba(139,115,85,.15)}
+.theme-island .pp-img .paper-mock-lg .mark{color:var(--danger)}
+.theme-island .mc-thumb{background:linear-gradient(135deg,#FFFBF2,#F5EDD6);border-color:rgba(139,115,85,.12)}
+
+/* ═══════ THEME 3: CICADA FOREST ═══════ */
+.theme-forest{
+  --bg-base:#F0F7F0;--bg-surface:#F5FAF5;--bg-card:#FFFFFF;
+  --bg-sidebar:#E8F0E4;--hover-bg:rgba(45,90,39,.06);
+  --active-bg:rgba(45,90,39,.1);
+  --text-primary:#1A2E1A;--text-secondary:#5C7A5C;--text-muted:#8AA88A;
+  --accent:#2D5A27;--accent-light:#2D5A2733;
+  --accent-2:#8B6914;--accent-3:#4CAF50;
+  --success:#4CAF50;--warning:#E8B44F;--danger:#E57373;
+  --border:rgba(45,90,39,.1);--surface-bg:#F5FAF5;
+  --xp-bg:rgba(45,90,39,.1);
+  --radius:16px;--radius-sm:10px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(45,90,39,.06);
+  --shadow-md:0 4px 16px rgba(45,90,39,.1);
+  --hero-bg:linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 100%);
+}
+.theme-forest .child-avatar{background:linear-gradient(135deg,#4CAF50,#2D5A27);color:white}
+.theme-forest .child-avatar .level-badge{background:#8B6914;color:white}
+.theme-forest .hero-card{background:var(--hero-bg);border:1px solid rgba(76,175,80,.15)}
+.theme-forest .hero-card .hero-illustration{background:radial-gradient(circle,rgba(76,175,80,.12),transparent 70%)}
+.theme-forest .hs-num{color:var(--accent)}
+.theme-forest .scg-icon{background:rgba(45,90,39,.08)}
+.theme-forest .qc-rank{color:var(--accent)}
+.theme-forest .qc-action{background:var(--accent);color:white}
+.theme-forest .knode{border-color:rgba(45,90,39,.08)}
+.theme-forest .knode:hover{border-color:var(--accent-light)}
+.theme-forest .kn-score{color:var(--accent)}
+.theme-forest .feedback-card.correct .fb-title{color:var(--success)}
+.theme-forest .feedback-card.wrong .fb-title{color:var(--danger)}
+.theme-forest .paper-card .pc-img{background:linear-gradient(135deg,#F5FAF5,#E8F0E4)}
+.theme-forest .paper-mock,.paper-mock-lg{background:#F5FAF5;border-color:rgba(45,90,39,.1)}
+.theme-forest .paper-mock .pl{background:rgba(45,90,39,.1)}
+.theme-forest .pp-img .paper-mock-lg{background:#F5FAF5;border-color:rgba(45,90,39,.1)}
+.theme-forest .pp-img .paper-mock-lg .pll{background:rgba(45,90,39,.1)}
+.theme-forest .pp-img .paper-mock-lg .mark{color:var(--danger)}
+.theme-forest .mc-thumb{background:linear-gradient(135deg,#F5FAF5,#E8F0E4);border-color:rgba(45,90,39,.08)}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media(max-width:900px){.sidebar{width:200px;min-width:200px}.paper-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}.stats-row{grid-template-columns:1fr}}
+@media(max-width:680px){.device{flex-direction:column}.sidebar{width:100%;min-width:100%;flex-direction:row;overflow-x:auto;padding:10px}.sidebar-header,.sidebar-footer{display:none}.sidebar-nav{flex-direction:row;padding:4px}.nav-item{flex-direction:column;gap:4px;font-size:11px;padding:8px 12px}.nav-item .nav-icon{font-size:22px}.main{padding:0}.main-body{padding:16px}.paper-grid{grid-template-columns:1fr 1fr}.stats-row{grid-template-columns:1fr 1fr}.hero-card{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<div class="theme-picker" id="themePicker">
+  <button class="active cosmic" onclick="setTheme('cosmic',this)">🌌 星际探险</button>
+  <button class="island" onclick="setTheme('island',this)">🏝️ 冒险岛</button>
+  <button class="forest" onclick="setTheme('forest',this)">🌿 知了森林</button>
+</div>
+
+<div class="device theme-cosmic" id="device">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="child-profile">
+      <div class="child-avatar">明<span class="level-badge">5</span></div>
+      <div class="child-info">
+        <div class="child-name">小明</div>
+        <div class="child-grade">四年级 · 探险家 Lv.5</div>
+      </div>
+    </div>
+    <div class="xp-section">
+      <div class="xp-label"><span>经验值</span><span class="xp-num">780 / 1000</span></div>
+      <div class="xp-bar"><div class="fill" style="width:78%;background:var(--accent)"></div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-nav">
+    <button class="nav-item active" onclick="switchScreen('home',this)" data-screen="home">
+      <span class="nav-icon">🏠</span> 探险首页
+    </button>
+    <button class="nav-item" onclick="switchScreen('papers',this)" data-screen="papers">
+      <span class="nav-icon">📸</span> 我的试卷
+      <span class="nav-badge" style="background:var(--danger);color:white">6</span>
+    </button>
+    <button class="nav-item" onclick="switchScreen('knowledge',this)" data-screen="knowledge">
+      <span class="nav-icon" id="mapIcon">🗺️</span> 知识地图
+    </button>
+    <button class="nav-item" onclick="switchScreen('practice',this)" data-screen="practice">
+      <span class="nav-icon">⚔️</span> 错题挑战
+      <span class="nav-badge" style="background:var(--warning);color:white">3</span>
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="nav-item">⚙️ 设置</button>
+    <button class="nav-item">🚪 退出</button>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+  <div class="main-header" id="mainHeader">
+    <div class="main-title" id="mainTitle">🏠 探险首页</div>
+    <div class="main-actions">
+      <span style="font-size:28px;cursor:pointer" id="themeCharacter">🛸</span>
+    </div>
+  </div>
+
+  <div class="main-body">
+<!-- ═══════════ SCREEN: HOME ═══════════ -->
+<div class="screen active" id="screen-home">
+  <div class="hero-card">
+    <div class="hero-illustration" id="heroIllus">🌟</div>
+    <div class="hero-text">
+      <div class="hero-greeting">下午好，探险家！</div>
+      <div class="hero-question" id="heroQuestion">今天要去哪个星球探险？</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-num">12</div><div class="hs-label">✨ 已点亮</div></div>
+        <div class="hero-stat"><div class="hs-num">8</div><div class="hs-label">🔭 探索中</div></div>
+        <div class="hero-stat"><div class="hs-num">4</div><div class="hs-label">🌑 未发现</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card-g" onclick="switchScreen('papers',document.querySelector('[data-screen=papers]'))">
+      <div class="scg-icon">📸</div>
+      <div class="scg-info"><div class="scg-num">6</div><div class="scg-label">我的试卷</div><div class="scg-sub">本学期已上传</div></div>
+    </div>
+    <div class="stat-card-g" onclick="switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'))">
+      <div class="scg-icon">🗺️</div>
+      <div class="scg-info"><div class="scg-num">24</div><div class="scg-label">知识星球</div><div class="scg-sub">四年级数学</div></div>
+    </div>
+    <div class="stat-card-g" onclick="switchScreen('practice',document.querySelector('[data-screen=practice]'))">
+      <div class="scg-icon">⚔️</div>
+      <div class="scg-info"><div class="scg-num">3</div><div class="scg-label">今日挑战</div><div class="scg-sub">待征服的错题</div></div>
+    </div>
+  </div>
+
+  <div class="quest-section">
+    <div class="section-head">
+      <div class="sh-title" id="questTitle">🔥 今日挑战任务</div>
+      <div class="sh-more" onclick="switchScreen('practice',document.querySelector('[data-screen=practice]'))">全部挑战 →</div>
+    </div>
+    <div class="quest-card" onclick="startPractice('mult-distributive-law')">
+      <div class="qc-rank" style="color:var(--danger)">1</div>
+      <div class="qc-icon">🔴</div>
+      <div class="qc-info">
+        <div class="qc-title">乘法分配律 · 需要加强</div>
+        <div class="qc-meta">掌握度 41分 · 上次练习：3天前</div>
+      </div>
+      <button class="qc-action">接受挑战</button>
+    </div>
+    <div class="quest-card" onclick="startPractice('order-of-operations')">
+      <div class="qc-rank" style="color:var(--warning)">2</div>
+      <div class="qc-icon">🟡</div>
+      <div class="qc-info">
+        <div class="qc-title">运算顺序 · 基本熟练</div>
+        <div class="qc-meta">掌握度 72分 · 上次练习：5天前</div>
+      </div>
+      <button class="qc-action">接受挑战</button>
+    </div>
+    <div class="quest-card" onclick="startPractice('decimal-add-sub')">
+      <div class="qc-rank" style="color:var(--warning)">3</div>
+      <div class="qc-icon">🟠</div>
+      <div class="qc-info">
+        <div class="qc-title">小数加减法 · 进步中</div>
+        <div class="qc-meta">掌握度 52分 · 上次练习：2天前</div>
+      </div>
+      <button class="qc-action">接受挑战</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: PAPERS ═══════════ -->
+<div class="screen" id="screen-papers">
+  <!-- Paper List View -->
+  <div id="paper-list-view">
+    <div class="filter-bar">
+      <button class="filter-pill active">全部试卷</button>
+      <button class="filter-pill">本学期</button>
+      <button class="filter-pill">最近30天</button>
+    </div>
+    <div class="paper-grid">
+      <div class="paper-card" onclick="showPaperDetail('数学单元练习','5月25日','3')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl"></div><div class="pl s"></div><div class="pl m"></div><div class="pl"></div></div><span class="pc-badge" style="background:var(--danger);color:white">3题</span></div>
+        <div class="pc-body"><div class="pc-name">数学单元练习</div><div class="pc-date">5月25日 · 3道错题</div></div>
+      </div>
+      <div class="paper-card" onclick="showPaperDetail('数学期中试卷','5月15日','5')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl m"></div><div class="pl"></div><div class="pl s"></div><div class="pl"></div></div><span class="pc-badge" style="background:var(--danger);color:white">5题</span></div>
+        <div class="pc-body"><div class="pc-name">数学期中试卷</div><div class="pc-date">5月15日 · 5道错题</div></div>
+      </div>
+      <div class="paper-card" onclick="showPaperDetail('每日一练','5月10日','2')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl"></div><div class="pl s"></div><div class="pl"></div><div class="pl m"></div></div><span class="pc-badge" style="background:var(--danger);color:white">2题</span></div>
+        <div class="pc-body"><div class="pc-name">每日一练</div><div class="pc-date">5月10日 · 2道错题</div></div>
+      </div>
+      <div class="paper-card" onclick="showPaperDetail('周末作业','5月5日','4')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl s"></div><div class="pl"></div><div class="pl m"></div><div class="pl"></div></div><span class="pc-badge" style="background:var(--danger);color:white">4题</span></div>
+        <div class="pc-body"><div class="pc-name">周末作业</div><div class="pc-date">5月5日 · 4道错题</div></div>
+      </div>
+      <div class="paper-card" onclick="showPaperDetail('课堂小测','4月28日','1')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl"></div><div class="pl m"></div><div class="pl"></div><div class="pl s"></div></div><span class="pc-badge" style="background:var(--danger);color:white">1题</span></div>
+        <div class="pc-body"><div class="pc-name">课堂小测</div><div class="pc-date">4月28日 · 1道错题</div></div>
+      </div>
+      <div class="paper-card" onclick="showPaperDetail('月考卷','4月15日','6')">
+        <div class="pc-img"><div class="paper-mock"><div class="pl m"></div><div class="pl"></div><div class="pl m"></div><div class="pl s"></div></div><span class="pc-badge" style="background:var(--danger);color:white">6题</span></div>
+        <div class="pc-body"><div class="pc-name">月考卷</div><div class="pc-date">4月15日 · 6道错题</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper Detail View (hidden by default) -->
+  <div id="paper-detail-view" style="display:none">
+    <div class="detail-header">
+      <button class="back-link" onclick="hidePaperDetail()">← 返回试卷列表</button>
+    </div>
+    <div class="paper-preview">
+      <div class="pp-img"><div class="paper-mock-lg"><div class="pll"></div><div class="pll s"></div><div class="pll m"></div><div class="pll"></div><div class="pll s"></div><div class="mark">✗</div><div class="pll"></div><div class="pll m"></div></div><div class="tap-to-zoom">🔍 点击放大</div></div>
+      <div class="pp-info"><div class="pp-name" id="paperDetailName">数学单元练习</div><div class="pp-meta" id="paperDetailMeta">5月25日 · 共3道错题</div></div>
+    </div>
+    <div class="mistake-list">
+      <h3>📝 错题分析 · 共 <span id="paperMistakeCount">3</span> 道</h3>
+
+      <div class="mistake-card">
+        <div class="mc-top">
+          <div class="mc-thumb"><div class="mc-mini"><div class="mcm"></div><div class="mcm s"></div><div class="mcm"></div></div></div>
+          <div class="mc-main">
+            <div class="mc-kp" onclick="showKnowledgeDetail('mult-distributive-law')">📖 乘法分配律 →</div>
+            <div class="mc-score">当前掌握度 41 分 · 🔴 需要加强</div>
+          </div>
+        </div>
+        <div class="mc-body">
+          <div class="mcb-label">错因</div><div class="mcb-val">只乘了一边，漏乘了 c</div>
+          <div class="mcb-label">正确解法</div><div class="mcb-val">(a+b)×c = a×c + b×c</div>
+        </div>
+        <div class="mc-actions">
+          <button class="btn-sm btn-primary-sm" onclick="startPractice('mult-distributive-law')">🔄 再生成3道同类题</button>
+          <button class="btn-sm btn-outline-sm" onclick="showKnowledgeDetail('mult-distributive-law')">📖 查看知识点详解</button>
+        </div>
+      </div>
+
+      <div class="mistake-card">
+        <div class="mc-top">
+          <div class="mc-thumb"><div class="mc-mini"><div class="mcm m"></div><div class="mcm"></div><div class="mcm s"></div></div></div>
+          <div class="mc-main">
+            <div class="mc-kp" onclick="showKnowledgeDetail('order-of-operations')">📖 运算顺序 →</div>
+            <div class="mc-score">当前掌握度 72 分 · 🟡 基本熟练</div>
+          </div>
+        </div>
+        <div class="mc-body">
+          <div class="mcb-label">错因</div><div class="mcb-val">先算了加减后算乘除</div>
+          <div class="mcb-label">正确解法</div><div class="mcb-val">先乘除、后加减，有括号先算括号内</div>
+        </div>
+        <div class="mc-actions">
+          <button class="btn-sm btn-primary-sm" onclick="startPractice('order-of-operations')">🔄 再生成3道同类题</button>
+          <button class="btn-sm btn-outline-sm" onclick="showKnowledgeDetail('order-of-operations')">📖 查看知识点详解</button>
+        </div>
+      </div>
+
+      <div class="mistake-card">
+        <div class="mc-top">
+          <div class="mc-thumb"><div class="mc-mini"><div class="mcm"></div><div class="mcm"></div><div class="mcm s"></div></div></div>
+          <div class="mc-main">
+            <div class="mc-kp" onclick="showKnowledgeDetail('decimal-add-sub')">📖 小数加减法 →</div>
+            <div class="mc-score">当前掌握度 52 分 · 🟠 进步中</div>
+          </div>
+        </div>
+        <div class="mc-body">
+          <div class="mcb-label">错因</div><div class="mcb-val">小数点未对齐</div>
+          <div class="mcb-label">正确解法</div><div class="mcb-val">小数点对齐，相同数位对齐后计算</div>
+        </div>
+        <div class="mc-actions">
+          <button class="btn-sm btn-primary-sm" onclick="startPractice('decimal-add-sub')">🔄 再生成3道同类题</button>
+          <button class="btn-sm btn-outline-sm" onclick="showKnowledgeDetail('decimal-add-sub')">📖 查看知识点详解</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: KNOWLEDGE MAP ═══════════ -->
+<div class="screen" id="screen-knowledge">
+  <!-- Knowledge Map View -->
+  <div id="knowledge-map-view">
+    <div class="domain-section">
+      <div class="domain-header"><span class="dh-icon">🔢</span><span class="dh-name">数与运算</span><span class="dh-count">8个知识点</span></div>
+      <div class="knode-grid">
+        <div class="knode" onclick="showKnowledgeDetail('mult-distributive-law')" style="border-color:var(--danger)">
+          <div class="kn-name">乘法分配律</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--danger)">41</span><span class="kn-badge" style="background:var(--danger);color:white">需要加强</span></div>
+          <div class="kn-bar"><div class="fill" style="width:41%;background:var(--danger)"></div></div>
+        </div>
+        <div class="knode" onclick="showKnowledgeDetail('order-of-operations')">
+          <div class="kn-name">运算顺序</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--warning)">72</span><span class="kn-badge" style="background:var(--warning);color:white">基本熟练</span></div>
+          <div class="kn-bar"><div class="fill" style="width:72%;background:var(--warning)"></div></div>
+        </div>
+        <div class="knode" onclick="showKnowledgeDetail('decimal-add-sub')">
+          <div class="kn-name">小数加减法</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--warning)">52</span><span class="kn-badge" style="background:var(--warning);color:white">进步中</span></div>
+          <div class="kn-bar"><div class="fill" style="width:52%;background:var(--warning)"></div></div>
+        </div>
+        <div class="knode" onclick="showKnowledgeDetail('mult-commutative')">
+          <div class="kn-name">乘法交换律</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--success)">92</span><span class="kn-badge" style="background:var(--success);color:white">已掌握</span></div>
+          <div class="kn-bar"><div class="fill" style="width:92%;background:var(--success)"></div></div>
+        </div>
+        <div class="knode">
+          <div class="kn-name">加法意义</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--success)">94</span><span class="kn-badge" style="background:var(--success);color:white">已掌握</span></div>
+          <div class="kn-bar"><div class="fill" style="width:94%;background:var(--success)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="domain-section">
+      <div class="domain-header"><span class="dh-icon">📐</span><span class="dh-name">图形与几何</span><span class="dh-count">5个知识点</span></div>
+      <div class="knode-grid">
+        <div class="knode" onclick="showKnowledgeDetail('triangle-angle-sum')">
+          <div class="kn-name">三角形内角和</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--warning)">68</span><span class="kn-badge" style="background:var(--warning);color:white">基本熟练</span></div>
+          <div class="kn-bar"><div class="fill" style="width:68%;background:var(--warning)"></div></div>
+        </div>
+        <div class="knode">
+          <div class="kn-name">角度测量</div>
+          <div class="kn-score-row"><span class="kn-score" style="color:var(--success)">88</span><span class="kn-badge" style="background:var(--success);color:white">接近掌握</span></div>
+          <div class="kn-bar"><div class="fill" style="width:88%;background:var(--success)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Knowledge Detail View (hidden) -->
+  <div id="knowledge-detail-view" style="display:none">
+    <div class="detail-header">
+      <button class="back-link" onclick="hideKnowledgeDetail()">← 返回知识地图</button>
+    </div>
+
+    <div class="kd-overview">
+      <div class="kd-name" id="kdName">乘法分配律</div>
+      <div class="kd-status" id="kdStatus" style="color:var(--danger)">🔴 需要加强</div>
+      <div class="kd-score-num" id="kdScore">41</div>
+      <div class="kd-score-label">掌握度分数</div>
+      <div class="kd-progress"><div class="fill" id="kdBar" style="width:41%;background:var(--danger)"></div></div>
+      <div class="kd-stats-row">
+        <div class="kd-stat"><div class="kds-num">8</div><div class="kds-label">练习次数</div></div>
+        <div class="kd-stat"><div class="kds-num">3</div><div class="kds-label">答对次数</div></div>
+        <div class="kd-stat"><div class="kds-num" style="color:var(--danger)">今天</div><div class="kds-label">下次复习</div></div>
+      </div>
+    </div>
+
+    <!-- 📖 知识点详解 -->
+    <div class="explanation-section">
+      <div class="es-title">📖 知识点详解</div>
+
+      <div class="explain-card">
+        <h4>📝 文字讲解</h4>
+        <p>乘法分配律是小学数学中最重要的运算定律之一。它描述了两个数的<strong>和</strong>与一个数相乘，可以先把它们分别与这个数相乘，再把积相加。</p>
+        <p style="margin-top:8px"><strong>定义：</strong>对于任意三个数 a、b、c，都有：<br><code style="background:var(--hover-bg);padding:2px 8px;border-radius:4px;font-size:15px">(a + b) × c = a × c + b × c</code></p>
+        <p style="margin-top:8px"><strong>常见错误：</strong>只乘了一边。比如 (3+5)×2，错误地算成 3+5×2=3+10=13，而正确应该是 8×2=16。</p>
+      </div>
+
+      <div class="explain-card">
+        <h4>💡 示例讲解</h4>
+        <div class="ec-steps">
+          <div class="step"><span class="step-num">例题：</span>计算 (25 + 15) × 4</div>
+          <div class="step"><span class="step-num">步骤1：</span>先算括号里的：25 + 15 = 40</div>
+          <div class="step"><span class="step-num">步骤2：</span>再乘以 4：40 × 4 = 160</div>
+          <div class="step"><span class="step-num">或用分配律：</span>25×4 + 15×4 = 100 + 60 = 160 ✓</div>
+          <div class="step" style="margin-top:10px"><span class="step-num">变式：</span>36 × 102 = 36 × (100+2) = 36×100 + 36×2 = 3600+72 = 3672</div>
+        </div>
+      </div>
+
+      <div class="explain-card">
+        <h4>🎬 视频讲解</h4>
+        <div class="video-placeholder" onclick="alert('🎬 视频播放中...（示例占位，后续对接云存储或外部视频资源）')">
+          <div class="vp-icon">▶️</div>
+          <div class="vp-text">点击播放：乘法分配律 · 动画讲解 (3:21)</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">支持腾讯视频 / COS直链 / AI生成视频</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错题历史 -->
+    <div class="mistake-list" style="margin-top:8px">
+      <h3>📋 错题历史</h3>
+      <div class="mistake-card">
+        <div class="mc-top">
+          <div class="mc-thumb"><div class="mc-mini"><div class="mcm"></div><div class="mcm s"></div><div class="mcm"></div></div></div>
+          <div class="mc-main">
+            <div class="mc-kp">数学单元练习 · 5月25日</div>
+            <div class="mc-score">错因：只乘了一边，漏乘了 c</div>
+          </div>
+        </div>
+        <div class="mc-body"><div class="mcb-label">正确解法</div><div class="mcb-val">(a+b)×c = a×c + b×c</div></div>
+      </div>
+      <div class="mistake-card">
+        <div class="mc-top">
+          <div class="mc-thumb"><div class="mc-mini"><div class="mcm m"></div><div class="mcm"></div><div class="mcm s"></div></div></div>
+          <div class="mc-main">
+            <div class="mc-kp">数学期中试卷 · 5月15日</div>
+            <div class="mc-score">错因：符号错误</div>
+          </div>
+        </div>
+        <div class="mc-body"><div class="mcb-label">正确解法</div><div class="mcb-val">a×(b-c)=a×b-a×c</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center">
+      <button class="btn-big btn-solid" onclick="startPractice('mult-distributive-law')">⚔️ 基于此知识点生成练习题</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: PRACTICE ═══════════ -->
+<div class="screen" id="screen-practice">
+  <div class="practice-header">
+    <div class="ph-badge" style="background:var(--danger);color:white">今日挑战</div>
+    <div class="ph-knowledge" id="practiceKpName">乘法分配律</div>
+    <div class="ph-hint">第 <span id="practiceQNum">1</span> / 3 题 · 输入你的答案</div>
+  </div>
+
+  <div class="question-card">
+    <div class="q-number">题目 1</div>
+    <div class="q-text" id="practiceQuestion">计算：(12 + 8) × 5 = ？</div>
+    <div class="answer-area">
+      <input type="text" id="answerInput" placeholder="输入答案..." autocomplete="off">
+      <button class="submit-btn" onclick="checkAnswer()">确认</button>
+    </div>
+  </div>
+
+  <div class="feedback-card" id="feedbackCard">
+    <div class="fb-icon" id="fbIcon"></div>
+    <div class="fb-title" id="fbTitle"></div>
+    <div class="fb-detail" id="fbDetail"></div>
+    <div class="fb-score" id="fbScore"></div>
+    <div class="fb-actions" id="fbActions"></div>
+  </div>
+</div>
+
+  </div><!-- .main-body -->
+</div><!-- .main -->
+</div><!-- .device -->
+
+<script>
+/* ══════ THEME SWITCHING ══════ */
+function setTheme(name,btn){
+  document.querySelectorAll('.theme-picker button').forEach(b=>{b.classList.remove('active','cosmic','island','forest')});
+  btn.classList.add('active',name);
+  document.getElementById('device').className='device theme-'+name;
+
+  // Update hero content per theme
+  const character=document.getElementById('themeCharacter');
+  const heroIllus=document.getElementById('heroIllus');
+  const heroQ=document.getElementById('heroQuestion');
+  const questTitle=document.getElementById('questTitle');
+  const mapIcon=document.getElementById('mapIcon');
+
+  switch(name){
+    case 'cosmic':
+      character.textContent='🛸';heroIllus.textContent='🌟';
+      heroQ.textContent='今天要去哪个星球探险？';
+      questTitle.textContent='🔥 今日挑战任务';
+      mapIcon.textContent='🪐';
+      break;
+    case 'island':
+      character.textContent='🏴‍☠️';heroIllus.textContent='🗺️';
+      heroQ.textContent='今天要探索哪座岛屿？';
+      questTitle.textContent='⚓ 今日冒险任务';
+      mapIcon.textContent='🏝️';
+      break;
+    case 'forest':
+      character.textContent='🦋';heroIllus.textContent='🌳';
+      heroQ.textContent='今天要浇灌哪棵知识树？';
+      questTitle.textContent='🌱 今日成长任务';
+      mapIcon.textContent='🌿';
+      break;
+  }
+}
+
+/* ══════ SCREEN NAVIGATION ══════ */
+let currentScreen='home';
+let knowledgeDetailKp=null;
+
+function switchScreen(screen,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  document.querySelectorAll('.nav-item[data-screen]').forEach(n=>n.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+
+  const titles={home:'🏠 探险首页',papers:'📸 我的试卷',knowledge:'🗺️ 知识地图',practice:'⚔️ 错题挑战'};
+  document.getElementById('mainTitle').textContent=titles[screen];
+
+  // Reset sub-views when switching to papers or knowledge
+  if(screen==='papers'){hidePaperDetail();}
+  if(screen==='knowledge'){hideKnowledgeDetail();}
+
+  // Auto-init practice if navigating via sidebar (no KP pre-selected)
+  if(screen==='practice' && !practiceState.kp){
+    startPractice('mult-distributive-law');
+  }
+  currentScreen=screen;
+}
+
+/* ══════ PAPER DETAIL ══════ */
+function showPaperDetail(name,date,count){
+  document.getElementById('paper-list-view').style.display='none';
+  document.getElementById('paper-detail-view').style.display='block';
+  document.getElementById('paperDetailName').textContent=name;
+  document.getElementById('paperDetailMeta').textContent=date+' · 共'+count+'道错题';
+  document.getElementById('paperMistakeCount').textContent=count;
+  document.getElementById('mainTitle').textContent='📸 '+name;
+}
+
+function hidePaperDetail(){
+  document.getElementById('paper-list-view').style.display='block';
+  document.getElementById('paper-detail-view').style.display='none';
+  document.getElementById('mainTitle').textContent='📸 我的试卷';
+}
+
+/* ══════ KNOWLEDGE DETAIL ══════ */
+const kpData={
+  'mult-distributive-law':{name:'乘法分配律',score:41,status:'🔴 需要加强',color:'var(--danger)',fill:'var(--danger)',review:'今天'},
+  'order-of-operations':{name:'运算顺序',score:72,status:'🟡 基本熟练',color:'var(--warning)',fill:'var(--warning)',review:'明天'},
+  'decimal-add-sub':{name:'小数加减法',score:52,status:'🟠 进步中',color:'var(--warning)',fill:'var(--warning)',review:'明天'},
+  'triangle-angle-sum':{name:'三角形内角和',score:68,status:'🟡 基本熟练',color:'var(--warning)',fill:'var(--warning)',review:'6月12日'},
+  'mult-commutative':{name:'乘法交换律',score:92,status:'🔵 已掌握',color:'var(--success)',fill:'var(--success)',review:'已归档'}
+};
+
+function showKnowledgeDetail(kpId){
+  const kp=kpData[kpId]||{name:'未知知识点',score:50,status:'🟡',color:'var(--warning)',fill:'var(--warning)',review:'-'};
+  document.getElementById('knowledge-map-view').style.display='none';
+  document.getElementById('knowledge-detail-view').style.display='block';
+  document.getElementById('kdName').textContent=kp.name;
+  document.getElementById('kdStatus').textContent=kp.status;
+  document.getElementById('kdStatus').style.color=kp.color;
+  document.getElementById('kdScore').textContent=kp.score;
+  document.getElementById('kdBar').style.width=kp.score+'%';
+  document.getElementById('kdBar').style.background=kp.fill;
+  document.getElementById('mainTitle').textContent='🗺️ '+kp.name;
+  knowledgeDetailKp=kpId;
+
+  // Update practice button to target this KP
+  const practiceBtn=document.querySelector('#knowledge-detail-view .btn-solid');
+  if(practiceBtn)practiceBtn.onclick=function(){startPractice(kpId)};
+
+  // Switch to knowledge screen if not already
+  if(currentScreen!=='knowledge'){
+    switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'));
+  }
+}
+
+function hideKnowledgeDetail(){
+  document.getElementById('knowledge-map-view').style.display='block';
+  document.getElementById('knowledge-detail-view').style.display='none';
+  document.getElementById('mainTitle').textContent='🗺️ 知识地图';
+  knowledgeDetailKp=null;
+}
+
+/* ══════ PRACTICE ══════ */
+const questions={
+  'mult-distributive-law':[
+    {q:'计算：(12 + 8) × 5 = ？',a:'100'},
+    {q:'计算：25 × (4 + 6) = ？',a:'250'},
+    {q:'计算：(30 - 5) × 2 = ？',a:'50'}
+  ],
+  'order-of-operations':[
+    {q:'计算：3 + 4 × 5 = ？',a:'23'},
+    {q:'计算：(3 + 4) × 5 = ？',a:'35'},
+    {q:'计算：20 - 3 × 4 = ？',a:'8'}
+  ],
+  'decimal-add-sub':[
+    {q:'计算：3.5 + 2.8 = ？',a:'6.3'},
+    {q:'计算：5.2 - 1.7 = ？',a:'3.5'},
+    {q:'计算：4.6 + 0.9 = ？',a:'5.5'}
+  ],
+  'default':[
+    {q:'计算：15 + 25 = ？',a:'40'},
+    {q:'计算：100 - 37 = ？',a:'63'},
+    {q:'计算：8 × 7 = ？',a:'56'}
+  ]
+};
+
+let practiceState={kp:null,qIdx:0,total:3};
+
+function startPractice(kpId){
+  practiceState={kp:kpId,qIdx:0,total:3};
+  document.getElementById('practiceKpName').textContent=kpData[kpId]?kpData[kpId].name:'知识点';
+  document.getElementById('feedbackCard').classList.remove('show','correct','wrong');
+  document.getElementById('feedbackCard').style.display='none';
+  showPracticeQuestion();
+  switchScreen('practice',document.querySelector('[data-screen=practice]'));
+}
+
+function showPracticeQuestion(){
+  const qs=questions[practiceState.kp]||questions['default'];
+  if(practiceState.qIdx>=qs.length)practiceState.qIdx=0;
+  const q=qs[practiceState.qIdx];
+  document.getElementById('practiceQuestion').textContent=q.q;
+  document.getElementById('practiceQNum').textContent=practiceState.qIdx+1;
+  document.getElementById('answerInput').value='';
+  document.getElementById('answerInput').focus();
+  document.getElementById('feedbackCard').classList.remove('show','correct','wrong');
+  document.getElementById('feedbackCard').style.display='none';
+  document.querySelector('.question-card').style.display='block';
+}
+
+function checkAnswer(){
+  const qs=questions[practiceState.kp]||questions['default'];
+  if(practiceState.qIdx>=qs.length)return;
+  const correct=qs[practiceState.qIdx].a;
+  const userAnswer=document.getElementById('answerInput').value.trim();
+  const isCorrect=userAnswer===correct;
+
+  const fb=document.getElementById('feedbackCard');
+  fb.style.display='block';
+  fb.classList.add('show');
+  fb.classList.remove('correct','wrong');
+
+  if(isCorrect){
+    fb.classList.add('correct');
+    document.getElementById('fbIcon').textContent='✅';
+    document.getElementById('fbTitle').textContent='回答正确！太棒了！';
+    document.getElementById('fbDetail').innerHTML='你的答案：<strong>'+userAnswer+'</strong><br>完全正确！'+qs[practiceState.qIdx].q.split('=')[0]+'= <strong>'+correct+'</strong>';
+    document.getElementById('fbScore').textContent='📈 掌握度 +3 → 当前 44 分';
+    document.getElementById('fbActions').innerHTML='<button class="btn-big btn-solid" onclick="nextQuestion()">继续下一题</button>';
+  }else{
+    fb.classList.add('wrong');
+    document.getElementById('fbIcon').textContent='❌';
+    document.getElementById('fbTitle').textContent='再想想！';
+    document.getElementById('fbDetail').innerHTML='你的答案：<strong style="color:var(--danger)">'+(userAnswer||'(空)')+'</strong><br>正确答案：<strong style="color:var(--success)">'+correct+'</strong><br><br>提示：先算括号里的，再乘外面的数';
+    document.getElementById('fbScore').textContent='📉 掌握度 -1 → 当前 40 分 （下次加油！）';
+    document.getElementById('fbActions').innerHTML='<button class="btn-big btn-solid" onclick="retryQuestion()">🔄 再试一次</button> <button class="btn-big btn-ghost" onclick="nextQuestion()">看答案跳过</button>';
+  }
+
+  document.querySelector('.question-card').style.display='none';
+}
+
+function nextQuestion(){
+  practiceState.qIdx++;
+  if(practiceState.qIdx>=practiceState.total){
+    document.getElementById('feedbackCard').classList.remove('show');
+    document.getElementById('feedbackCard').style.display='block';
+    document.getElementById('feedbackCard').classList.add('correct');
+    document.getElementById('fbIcon').textContent='🎉';
+    document.getElementById('fbTitle').textContent='挑战完成！';
+    document.getElementById('fbDetail').textContent='你今天完成了 3 道乘法分配律的练习。掌握度从 41 → 44 分。再来几次就能掌握这个知识点啦！';
+    document.getElementById('fbScore').textContent='';
+    document.getElementById('fbActions').innerHTML='<button class="btn-big btn-solid" onclick="switchScreen(\'home\',document.querySelector(\'[data-screen=home]\'))">🏠 返回首页</button> <button class="btn-big btn-ghost" onclick="startPractice(practiceState.kp)">🔄 再来一组</button>';
+    document.querySelector('.question-card').style.display='none';
+    return;
+  }
+  showPracticeQuestion();
+}
+
+function retryQuestion(){
+  showPracticeQuestion();
+}
+</script>
+</body>
+</html>
