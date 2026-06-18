@@ -1,0 +1,19 @@
+{
+  "type": "design",
+  "designSystems": ["parent-miniprogram-mobile"],
+  "primaryDesignSystem": "parent-miniprogram-mobile",
+  "assets": {
+    "家长端微信小程序（移动端）": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-06-18T09:00:00.000Z",
+          "status": "needs-review",
+          "notes": "11 屏：首页/拍照/分析中/记录/试卷列表/试卷详情/知识点列表/知识点详情/设置/通知/登录。复用 PC 端设计系统，体现 v1.3 新变动（错因两层、渐进状态、横幅兜底、衰减探针复查、复习计划待补做）。发布于 GitHub Pages。"
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-06-18T09:00:00.000Z",
+  "updatedAt": "2026-06-18T09:00:00.000Z"
+}
