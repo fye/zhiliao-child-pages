@@ -395,6 +395,76 @@ button{border:0;cursor:pointer;background:none;color:inherit}
 .shutter{width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,0.4);box-shadow:0 0 0 3px rgba(255,255,255,0.25);display:grid;place-items:center}
 .shutter .sh-inner{width:54px;height:54px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
 .capture-side-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);display:grid;place-items:center;font-size:20px;color:#fff;backdrop-filter:blur(6px)}
+
+/* ═══════════ 练习任务详情页 ═══════════ */
+.task-hero{
+  margin:0 16px 14px;
+  background:linear-gradient(135deg,rgba(23,121,111,0.97),rgba(21,102,94,0.96));
+  color:#fff;border-radius:var(--radius);padding:16px;box-shadow:0 12px 26px rgba(23,121,111,0.25);
+  position:relative;overflow:hidden;
+}
+.task-hero::after{content:"";position:absolute;right:-24px;bottom:-24px;width:120px;height:120px;border-radius:50%;border:16px solid rgba(246,200,76,0.22)}
+.task-hero .th-name{font-size:18px;font-weight:1000;margin-bottom:8px;position:relative;z-index:2}
+.task-hero .th-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px;position:relative;z-index:2}
+.task-hero .th-tags .tag{background:rgba(255,255,255,0.2);color:#fff}
+.task-hero .th-stats{display:flex;gap:18px;position:relative;z-index:2}
+.task-hero .th-stat{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;opacity:.95}
+.task-hero .th-stat .ths-num{font-size:22px;font-weight:1000;opacity:1}
+
+.reason-card{margin:0 16px 12px;background:#fff8e8;border:1px solid #ecd9a8;border-radius:var(--radius);padding:12px 14px;display:flex;gap:10px}
+.reason-card .rc-ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.reason-card .rc-txt{font-size:12px;color:#8a6a00;font-weight:800;line-height:1.55}
+.reason-card .rc-txt strong{color:#5a4500}
+
+.kp-coverage-row{display:flex;align-items:center;gap:11px;padding:12px 15px;border-bottom:1px solid rgba(228,222,209,0.55)}
+.kp-coverage-row:last-child{border-bottom:0}
+.kp-coverage-row .kc-ring{flex-shrink:0}
+.kp-coverage-row .kc-body{flex:1;min-width:0}
+.kp-coverage-row .kc-name{font-weight:900;font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.kp-coverage-row .kc-detail{font-size:11px;color:var(--muted);font-weight:700;line-height:1.5}
+.kp-coverage-row .kc-count{font-size:11px;font-weight:900;color:var(--brand-dark);background:#edf3ef;padding:2px 8px;border-radius:999px;flex-shrink:0}
+
+.source-mistake{display:flex;gap:10px;padding:11px 0;border-bottom:1px dashed rgba(228,222,209,0.8)}
+.source-mistake:last-child{border-bottom:0;padding-bottom:0}
+.source-mistake .sm-thumb{width:44px;height:44px;flex-shrink:0;border-radius:5px;overflow:hidden;border:1px solid #e1d8c7;background:repeating-linear-gradient(#fff 0 8px,#f7f2e8 8px 9px),#fff;position:relative}
+.source-mistake .sm-thumb .red-mark{position:absolute;width:20px;height:2px;background:var(--rose);transform:rotate(-8deg);top:16px;left:6px}
+.source-mistake .sm-info{flex:1;min-width:0}
+.source-mistake .sm-kp{font-size:12px;font-weight:900;margin-bottom:2px}
+.source-mistake .sm-meta{font-size:10px;color:var(--muted);font-weight:700}
+
+/* 分享练习底部固定栏 */
+.share-bar{
+  position:absolute;left:0;right:0;bottom:0;z-index:40;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:rgba(255,254,250,0.96);
+  backdrop-filter:blur(16px);
+  border-top:1px solid rgba(228,222,209,0.8);
+  display:flex;gap:10px;
+}
+.share-link-modal{
+  position:absolute;inset:0;z-index:80;
+  background:rgba(20,18,16,0.55);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.share-link-modal.show{display:flex}
+.share-sheet{
+  width:100%;background:#fff;border-radius:18px 18px 0 0;
+  padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));
+  animation:sheetUp .26s ease;
+}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.share-sheet .ss-handle{width:38px;height:4px;border-radius:999px;background:#e0d9cc;margin:0 auto 18px}
+.share-sheet .ss-title{font-size:17px;font-weight:1000;text-align:center;margin-bottom:6px}
+.share-sheet .ss-sub{font-size:12px;color:var(--muted);font-weight:700;text-align:center;margin-bottom:20px;line-height:1.5}
+.share-sheet .ss-link-box{
+  background:var(--warm);border:1px dashed #d8cdbb;border-radius:var(--radius);
+  padding:14px;margin-bottom:18px;font-size:12px;color:var(--muted);font-weight:700;
+  word-break:break-all;line-height:1.6;font-family:monospace;
+}
+.share-sheet .ss-link-box strong{color:var(--ink);font-family:inherit}
+.share-sheet .ss-expires{font-size:11px;color:var(--orange);font-weight:800;text-align:center;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:5px}
+.share-sheet .ss-actions{display:flex;flex-direction:column;gap:9px}
+.share-sheet .ss-tip{font-size:11px;color:var(--subtle);font-weight:700;text-align:center;margin-top:12px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -411,6 +481,7 @@ button{border:0;cursor:pointer;background:none;color:inherit}
   <button class="pill-tab" data-page="paper-detail">试卷详情</button>
   <button class="pill-tab" data-page="kp-list">知识点</button>
   <button class="pill-tab" data-page="kp-detail">知识点详情</button>
+  <button class="pill-tab" data-page="task-detail">练习任务</button>
   <button class="pill-tab" data-page="settings">设置</button>
   <button class="pill-tab" data-page="notice">通知</button>
   <button class="pill-tab" data-page="login">登录</button>
@@ -488,7 +559,7 @@ button{border:0;cursor:pointer;background:none;color:inherit}
     </div>
     <div class="card" style="padding:0">
       <!-- 今天 -->
-      <div class="plan-item" onclick="go('waiting')">
+      <div class="plan-item" onclick="go('task-detail')">
         <div class="pi-dot today"></div>
         <div class="pi-body">
           <div class="pi-top">
@@ -1253,7 +1324,121 @@ button{border:0;cursor:pointer;background:none;color:inherit}
   </div>
 </div>
 
-<!-- ═══════ 页面 11：登录授权页 ═══════ -->
+<!-- ═══════ 页面 11：练习任务详情页（家长查看/分享练习） ═══════ -->
+<div class="page" id="page-task-detail">
+  <div class="page-scroll" style="padding-bottom:84px">
+    <div class="nav-bar">
+      <button class="nb-back" onclick="go('home')">‹</button>
+      <span class="nb-title">练习任务</span>
+      <button class="nb-ico-btn">↗</button>
+    </div>
+
+    <!-- 任务概览 Hero -->
+    <div class="task-hero">
+      <div class="th-name">今日小测 · 错题巩固</div>
+      <div class="th-tags">
+        <span class="tag"><span class="dot" style="width:7px;height:7px;border-radius:50%;background:var(--yellow)"></span>今日到期</span>
+        <span class="tag">智能组卷</span>
+      </div>
+      <div class="th-stats">
+        <div class="th-stat"><span class="ths-num">8</span>题</div>
+        <div class="th-stat"><span class="ths-num">12</span>分钟</div>
+        <div class="th-stat"><span class="ths-num">3</span>知识点</div>
+      </div>
+    </div>
+
+    <!-- 推荐原因 -->
+    <div class="reason-card">
+      <div class="rc-ico">💡</div>
+      <div class="rc-txt">
+        本次组卷基于<strong>遗忘曲线</strong>与<strong>近期错题</strong>：<br>
+        2 个知识点到期复习，1 个知识点近 7 天连续出错。
+      </div>
+    </div>
+
+    <!-- 覆盖知识点 -->
+    <div class="section-head"><h2>覆盖知识点</h2></div>
+    <div class="card" style="padding:0">
+      <div class="kp-coverage-row">
+        <div class="ring kc-ring r-sm" style="--s:41;--c:var(--rose)">41</div>
+        <div class="kc-body">
+          <div class="kc-name">乘法分配律 <span class="tag hot">到期复习</span></div>
+          <div class="kc-detail">上次练习 5 天前 · 再答对 4-6 题就能掌握</div>
+        </div>
+        <span class="kc-count">4 题</span>
+      </div>
+      <div class="kp-coverage-row">
+        <div class="ring kc-ring r-sm" style="--s:52;--c:var(--orange)">52</div>
+        <div class="kc-body">
+          <div class="kc-name">小数加减法 <span class="tag orange">近期易错</span></div>
+          <div class="kc-detail">近 7 天出错 2 次 · 重点巩固</div>
+        </div>
+        <span class="kc-count">3 题</span>
+      </div>
+      <div class="kp-coverage-row">
+        <div class="ring kc-ring r-sm" style="--s:72;--c:var(--yellow)">72</div>
+        <div class="kc-body">
+          <div class="kc-name">运算顺序 <span class="tag warn">到期复习</span></div>
+          <div class="kc-detail">上次练习 6 天前 · 巩固防遗忘</div>
+        </div>
+        <span class="kc-count">1 题</span>
+      </div>
+    </div>
+
+    <!-- 来源错题 -->
+    <div class="section-head"><h2>来源错题</h2><span class="sh-more">本次练习基于以下错题生成</span></div>
+    <div class="card">
+      <div class="source-mistake">
+        <div class="sm-thumb"><div class="red-mark"></div></div>
+        <div class="sm-info">
+          <div class="sm-kp">乘法分配律 · 变式题 ×2</div>
+          <div class="sm-meta">来自：数学单元练习 · 5月25日</div>
+        </div>
+      </div>
+      <div class="source-mistake">
+        <div class="sm-thumb"><div class="red-mark" style="top:22px"></div></div>
+        <div class="sm-info">
+          <div class="sm-kp">小数加减法 · 变式题 ×2</div>
+          <div class="sm-meta">来自：期中模拟卷 · 6月15日</div>
+        </div>
+      </div>
+      <div class="source-mistake">
+        <div class="sm-thumb"></div>
+        <div class="sm-info">
+          <div class="sm-kp">运算顺序 · 变式题 ×1</div>
+          <div class="sm-meta">来自：小数运算练习 · 6月5日</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部分享栏 -->
+  <div class="share-bar">
+    <button class="btn btn-ghost" style="flex:1" onclick="alert('设计稿：预览题目内容')">👁 预览题目</button>
+    <button class="btn btn-warm" style="flex:1.4" onclick="document.getElementById('share-modal').classList.add('show')">📨 发送练习给小孩</button>
+  </div>
+
+  <!-- 分享链接弹层 -->
+  <div class="share-link-modal" id="share-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="share-sheet">
+      <div class="ss-handle"></div>
+      <div class="ss-title">练习已生成</div>
+      <div class="ss-sub">把链接发给小明，<br>用 Pad 或电脑浏览器打开即可答题（无需家庭码）</div>
+      <div class="ss-link-box">
+        https://zhiliao.app/s/<strong>8xK2pQ</strong>
+      </div>
+      <div class="ss-expires">⏳ 链接 24 小时内有效</div>
+      <div class="ss-actions">
+        <button class="btn btn-primary btn-block" onclick="alert('设计稿：已复制链接到剪贴板');document.getElementById('share-modal').classList.remove('show')">📋 复制链接</button>
+        <button class="btn btn-warm btn-block" onclick="alert('设计稿：调用微信分享');document.getElementById('share-modal').classList.remove('show')">💬 微信分享给小孩</button>
+        <button class="btn btn-ghost btn-block" onclick="document.getElementById('share-modal').classList.remove('show')">取消</button>
+      </div>
+      <div class="ss-tip">小孩做完后，练习结果会自动同步到这<br>你可以在首页查看完成情况</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ 页面 12：登录授权页 ═══════ -->
 <div class="page" id="page-login">
   <div class="login-wrap">
     <div class="login-logo">知</div>
