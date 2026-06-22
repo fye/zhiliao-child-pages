@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知了错题 · 小孩端 — 练一练，通了</title>
+<style>
+/* ═══════════════════════════════════════════════════════
+   知了错题 · 小孩端 PC/Pad Web Demo
+   视觉系统「纸本墨色」—— 草稿纸 · 钢笔蓝 · 红朱砂 · 田字格
+   对齐 PRD 4.4.2（行为语言导航 / 动机A·B·C / 反游戏化）
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 设计令牌 ── */
+:root{
+  /* 纸张层 */
+  --paper:#FBF8EE;          /* 草稿纸米黄(页面底) */
+  --paper-card:#FFFDF5;     /* 新纸白(主卡片) */
+  --paper-soft:#F5F1E3;     /* 旧纸米黄(次级卡片) */
+  --paper-warm:#F0EBD8;     /* 装订带米褐 */
+  --paper-rule:#E6E0CC;     /* 纸张折痕/分割线 */
+
+  /* 墨色 */
+  --ink:#1F2330;            /* 墨黑(正文) */
+  --ink-soft:#4A4E5C;       /* 次墨(次要文字) */
+  --ink-muted:#8B8676;      /* 淡墨灰(辅助,偏暖) */
+
+  /* 主色·钢笔蓝 */
+  --pen:#1E4D8C;            /* 钢笔蓝 */
+  --pen-deep:#163A6B;       /* 深钢笔(悬停) */
+  --pen-wash:#E8EFF8;       /* 蓝墨晕染 */
+
+  /* 朱砂·红笔 */
+  --cinnabar:#C0392B;       /* 红朱砂(批改/错题) */
+  --cinnabar-wash:#FBEAE6;
+
+  /* 掌握度 5 档（对应 PRD 4.3） */
+  --m1:#C0392B;  --m1-bg:#FBEAE6;  /* 需要加强 0-30   */
+  --m2:#D8821A;  --m2-bg:#FBF0DB;  /* 进步中   30-65  */
+  --m3:#1E4D8C;  --m3-bg:#E8EFF8;  /* 基本熟练 65-85  */
+  --m4:#2D7A4F;  --m4-bg:#E4F0E8;  /* 接近掌握 85-90  */
+  --m5:#B8860B;  --m5-bg:#F7F0DA;  /* 已掌握   90+    */
+
+  /* 功能色 */
+  --success:#2D7A4F;
+  --warning:#D8821A;
+  --danger:#C0392B;
+
+  /* 尺度 */
+  --radius:4px;       /* 纸张裁切感 */
+  --radius-lg:8px;    /* 强调 */
+  --radius-pill:999px;
+
+  /* 阴影（轻,像纸面浮起） */
+  --shadow-sm:0 1px 2px rgba(31,35,48,.06),0 1px 1px rgba(31,35,48,.04);
+  --shadow-md:0 3px 10px rgba(31,35,48,.08),0 1px 3px rgba(31,35,48,.05);
+  --shadow-lg:0 8px 28px rgba(31,35,48,.10);
+
+  /* 侧栏宽 */
+  --sidebar-w:228px;
+
+  /* 字体 */
+  --font-serif:"Songti SC","STSong","SimSun",serif;
+  --font-sans:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","DM Mono","Menlo",monospace;
+}
+
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-sans);
+  background:#E8E3D4;
+  color:var(--ink);
+  font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px;
+}
+
+/* ═══════════ 田字格纸本背景纹理 ═══════════ */
+.paper-grid-bg{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(rgba(30,77,140,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(30,77,140,.045) 1px,transparent 1px),
+    linear-gradient(rgba(30,77,140,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(30,77,140,.025) 1px,transparent 1px);
+  background-size:60px 60px,60px 60px,15px 15px,15px 15px;
+}
+
+/* ═══════════ 设备外框 ═══════════ */
+.device{
+  width:100%;max-width:1280px;
+  background:var(--paper);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  display:flex;overflow:hidden;
+  height:min(840px,calc(100vh - 48px));
+  border:1px solid var(--paper-rule);
+  position:relative;
+}
+
+/* ═══════════ 侧栏 ═══════════ */
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:var(--paper-soft);
+  border-right:1px solid var(--paper-rule);
+  display:flex;flex-direction:column;
+  padding:20px 16px;
+  position:relative;
+}
+/* 装订孔装饰 */
+.sidebar::before{
+  content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;
+  background:repeating-linear-gradient(to bottom,
+    transparent 0,transparent 28px,
+    rgba(30,77,140,.12) 28px,rgba(30,77,140,.12) 36px);
+}
+
+.brand{padding:0 0 4px 16px;margin-bottom:6px}
+.brand-logo{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--pen);letter-spacing:.5px}
+.brand-logo .cicada{font-size:20px}
+.brand-tag{font-size:11px;color:var(--ink-muted);letter-spacing:2px;margin-top:2px}
+
+.sidebar-profile{
+  margin:18px 0 6px 16px;padding:12px 12px;
+  background:var(--paper-card);border:1px solid var(--paper-rule);
+  border-radius:var(--radius);
+}
+.sp-row{display:flex;align-items:center;gap:10px}
+.sp-avatar{
+  width:38px;height:38px;border-radius:var(--radius);
+  background:var(--pen);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-serif);font-size:18px;font-weight:600;
+  flex-shrink:0;
+}
+.sp-name{font-weight:600;font-size:14px;color:var(--ink)}
+.sp-meta{font-size:11px;color:var(--ink-muted);margin-top:1px}
+
+.sidebar-nav{margin-top:14px;flex:1;overflow-y:auto}
+.nav-section-label{font-size:10px;color:var(--ink-muted);letter-spacing:2px;padding:8px 16px 6px;text-transform:uppercase}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  width:100%;text-align:left;
+  padding:10px 14px;margin-bottom:2px;
+  border:none;background:none;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:500;
+  color:var(--ink-soft);border-radius:var(--radius);
+  transition:all .15s;position:relative;
+}
+.nav-item:hover{background:rgba(30,77,140,.06);color:var(--ink)}
+.nav-item.active{
+  background:var(--pen-wash);color:var(--pen);font-weight:600;
+}
+.nav-item.active::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;background:var(--pen);border-radius:2px;
+}
+.nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0;font-family:var(--font-serif)}
+.nav-badge{
+  margin-left:auto;font-size:10px;font-weight:700;
+  padding:1px 7px;border-radius:var(--radius-pill);
+  background:var(--cinnabar-wash);color:var(--cinnabar);
+}
+
+.sidebar-foot{padding-top:10px;border-top:1px solid var(--paper-rule)}
+
+/* ═══════════ 主区 ═══════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* 顶部上下文条 */
+.topbar{
+  height:52px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  background:var(--paper-card);
+  border-bottom:1px solid var(--paper-rule);
+}
+.tb-context{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft)}
+.tb-context .dot{width:4px;height:4px;border-radius:50%;background:var(--ink-muted)}
+.tb-context strong{color:var(--ink);font-weight:600}
+.tb-term-pill{
+  font-family:var(--font-mono);font-size:11px;
+  padding:2px 9px;border-radius:var(--radius);
+  background:var(--paper-soft);color:var(--ink-soft);border:1px solid var(--paper-rule);
+}
+.tb-actions{display:flex;align-items:center;gap:14px}
+.tb-icon-btn{
+  width:34px;height:34px;border-radius:var(--radius);
+  border:1px solid var(--paper-rule);background:var(--paper);
+  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.tb-icon-btn:hover{background:var(--paper-soft)}
+.tb-avatar{
+  width:34px;height:34px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--pen),var(--pen-deep));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-serif);font-size:15px;font-weight:600;cursor:pointer;
+}
+
+/* 历史学期提示条 */
+.history-banner{
+  background:var(--paper-warm);border-bottom:1px solid var(--paper-rule);
+  padding:8px 24px;font-size:12px;color:var(--ink-soft);text-align:center;
+  display:none;
+}
+.history-banner.show{display:block}
+.history-banner strong{color:var(--cinnabar)}
+
+/* 主内容滚动区 */
+.main-body{flex:1;overflow-y:auto;padding:24px 28px}
+.main-body::-webkit-scrollbar{width:8px}
+.main-body::-webkit-scrollbar-thumb{background:var(--paper-rule);border-radius:4px}
+
+.screen{display:none;animation:fadein .25s ease}
+.screen.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.screen-title{
+  font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--ink);
+  margin-bottom:4px;letter-spacing:.5px;
+}
+.screen-sub{font-size:13px;color:var(--ink-muted);margin-bottom:22px}
+
+/* ═══════════ 通用组件 ═══════════ */
+
+/* 卡片 */
+.card{
+  background:var(--paper-card);border:1px solid var(--paper-rule);
+  border-radius:var(--radius-lg);padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+.card-title{font-family:var(--font-serif);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .ct-more{margin-left:auto;font-size:12px;font-weight:400;color:var(--pen);cursor:pointer;font-family:var(--font-sans)}
+
+/* 掌握度状态标签（5档） */
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-pill);font-family:var(--font-sans);white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tag-m1{color:var(--m1);background:var(--m1-bg)}
+.tag-m2{color:var(--m2);background:var(--m2-bg)}
+.tag-m3{color:var(--m3);background:var(--m3-bg)}
+.tag-m4{color:var(--m4);background:var(--m4-bg)}
+.tag-m5{color:var(--m5);background:var(--m5-bg)}
+
+/* 错因标签（6大类） */
+.err-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--radius);background:var(--cinnabar-wash);color:var(--cinnabar);border:1px solid rgba(192,57,43,.15)}
+.err-tag.t2{background:#FBF0DB;color:#A6651A;border-color:rgba(216,130,26,.15)}
+.err-tag.t3{background:var(--pen-wash);color:var(--pen);border-color:rgba(30,77,140,.15)}
+
+/* 掌握度进度条（对数映射由JS计算宽度） */
+.mastery-bar{height:6px;background:var(--paper-soft);border-radius:3px;overflow:hidden;position:relative}
+.mastery-bar .fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* 试卷 mock（CSS 生成缩略图） */
+.paper-mock{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:3px;padding:8px;display:flex;flex-direction:column;gap:4px;position:relative}
+.paper-mock .pl{height:3px;background:rgba(30,77,140,.12);border-radius:1px}
+.paper-mock .pl.s{width:50%}
+.paper-mock .pl.m{width:75%}
+.paper-mock .mark{position:absolute;color:var(--cinnabar);font-family:var(--font-serif);font-size:14px;font-weight:700}
+
+/* 按钮 */
+.btn{font-family:inherit;font-size:14px;font-weight:600;border:none;cursor:pointer;border-radius:var(--radius);padding:10px 18px;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.btn-solid{background:var(--pen);color:#fff}
+.btn-solid:hover{background:var(--pen-deep)}
+.btn-ghost{background:transparent;color:var(--pen);border:1px solid var(--pen)}
+.btn-ghost:hover{background:var(--pen-wash)}
+.btn-soft{background:var(--paper-soft);color:var(--ink-soft);border:1px solid var(--paper-rule)}
+.btn-soft:hover{background:var(--paper-warm)}
+.btn-big{padding:13px 28px;font-size:15px;width:100%;justify-content:center}
+.btn-lg{padding:12px 24px;font-size:15px}
+
+/* 数字键盘 */
+.num-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:0 auto}
+.num-pad button{font-family:var(--font-mono);font-size:22px;font-weight:500;padding:16px 0;border:1px solid var(--paper-rule);background:var(--paper-card);border-radius:var(--radius);cursor:pointer;transition:all .1s}
+.num-pad button:hover{background:var(--pen-wash);border-color:var(--pen)}
+.num-pad button:active{transform:scale(.95)}
+
+/* ═══════════ 设置抽屉 ═══════════ */
+.drawer-overlay{position:fixed;inset:0;background:rgba(31,35,48,.35);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-overlay.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:360px;max-width:90vw;
+  background:var(--paper);z-index:101;transform:translateX(100%);
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadow-lg);
+}
+.drawer.show{transform:none}
+.drawer-head{padding:20px;border-bottom:1px solid var(--paper-rule);display:flex;align-items:center;justify-content:space-between}
+.drawer-head h3{font-family:var(--font-serif);font-size:18px;font-weight:700}
+.drawer-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-muted);line-height:1}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+.set-group{margin-bottom:24px}
+.set-group-label{font-size:12px;color:var(--ink-muted);letter-spacing:1px;margin-bottom:10px;font-weight:600}
+.set-option{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--paper-rule);border-radius:var(--radius);margin-bottom:8px;background:var(--paper-card);cursor:pointer;transition:all .15s}
+.set-option:hover{border-color:var(--pen)}
+.set-option.sel{border-color:var(--pen);background:var(--pen-wash)}
+.set-option.sel .so-check{opacity:1}
+.so-label{font-size:14px;font-weight:500}
+.so-check{color:var(--pen);font-size:16px;opacity:0}
+
+/* ═══════════ 响应式 ═══════════ */
+@media(max-width:1024px){
+  :root{--sidebar-w:76px}
+  .sidebar{padding:16px 8px}
+  .sidebar::before{display:none}
+  .brand,.sidebar-profile,.nav-section-label,.sidebar-foot{display:none}
+  .sidebar-nav{margin-top:16px}
+  .nav-item{flex-direction:column;gap:4px;font-size:10px;padding:10px 4px;text-align:center}
+  .nav-icon{font-size:20px}
+  .nav-badge{font-size:9px;padding:1px 5px}
+  .main-body{padding:18px}
+}
+@media(max-width:680px){
+  body{padding:0}
+  .device{border-radius:0;max-width:none;height:100vh}
+  .sidebar{width:100%;min-width:100%;flex-direction:row;align-items:center;gap:0;padding:0 8px;height:auto;order:2}
+  .sidebar-nav{display:flex;flex-direction:row;gap:2px;margin:0;overflow-x:auto}
+  .nav-item.active::before{display:none}
+  .main{order:1}
+  .tb-context .hide-mobile{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ 设置抽屉 ═══════════ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>个人 / 家庭设置</h3>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="set-group">
+      <div class="set-group-label">切换小孩</div>
+      <div class="set-option sel" onclick="pickSet(this)"><span class="so-label">小明 · 四年级</span><span class="so-check">✓</span></div>
+      <div class="set-option" onclick="pickSet(this)"><span class="so-label">小红 · 三年级</span><span class="so-check">✓</span></div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-label">学科</div>
+      <div class="set-option sel" onclick="pickSet(this)"><span class="so-label">数学</span><span class="so-check">✓</span></div>
+      <div class="set-option" style="opacity:.5;cursor:not-allowed"><span class="so-label">语文（即将上线）</span></div>
+      <div class="set-option" style="opacity:.5;cursor:not-allowed"><span class="so-label">英语（即将上线）</span></div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-label">年级 / 学期</div>
+      <div class="set-option sel" onclick="pickSet(this)"><span class="so-label">四年级下 · 当前学期</span><span class="so-check">✓</span></div>
+      <div class="set-option" onclick="pickSet(this)"><span class="so-label">四年级上 · 历史</span><span class="so-check">✓</span></div>
+      <div class="set-option" onclick="pickSet(this)"><span class="so-label">三年级下 · 历史</span><span class="so-check">✓</span></div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-label">地区 / 教材版本</div>
+      <div class="set-option sel" onclick="pickSet(this)"><span class="so-label">上海 · 沪教版</span><span class="so-check">✓</span></div>
+      <div class="set-option" onclick="pickSet(this)"><span class="so-label">全国 · 人教版</span><span class="so-check">✓</span></div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-label">家庭码</div>
+      <div class="set-option" style="cursor:default"><span class="so-label" style="font-family:var(--font-mono);letter-spacing:3px">A 7 K 9 M 2</span><span class="so-check" style="opacity:1;color:var(--ink-muted)">已绑定</span></div>
+    </div>
+    <div class="set-group">
+      <button class="btn btn-soft btn-big" style="color:var(--cinnabar);border-color:var(--cinnabar-wash)" onclick="switchScreen('login',null);closeDrawer()">退出登录</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ 设备主体 ═══════════ -->
+<div class="device paper-grid-bg" id="device">
+
+  <!-- ─── 侧栏 ─── -->
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><span class="cicada">知</span>了错题</div>
+      <div class="brand-tag">练一练，通了</div>
+    </div>
+    <div class="sidebar-profile">
+      <div class="sp-row">
+        <div class="sp-avatar">明</div>
+        <div>
+          <div class="sp-name">小明</div>
+          <div class="sp-meta">连续完成计划 <strong style="color:var(--cinnabar);font-family:var(--font-mono)">7</strong> 天</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">学习</div>
+      <button class="nav-item active" onclick="switchScreen('dashboard',this)" data-screen="dashboard"><span class="nav-icon">首</span>首页</button>
+      <button class="nav-item" onclick="switchScreen('training',this)" data-screen="training"><span class="nav-icon">练</span>训练<span class="nav-badge">2</span></button>
+      <button class="nav-item" onclick="switchScreen('mistakes',this)" data-screen="mistakes"><span class="nav-icon">错</span>全部错题</button>
+      <button class="nav-item" onclick="switchScreen('papers',this)" data-screen="papers"><span class="nav-icon">卷</span>我的试卷</button>
+      <button class="nav-item" onclick="switchScreen('knowledge',this)" data-screen="knowledge"><span class="nav-icon">点</span>错题知识点</button>
+      <button class="nav-item" onclick="switchScreen('stats',this)" data-screen="stats"><span class="nav-icon">我</span>我的</button>
+    </div>
+    <div class="sidebar-foot">
+      <button class="nav-item" onclick="openDrawer()"><span class="nav-icon">⚙</span>设置</button>
+    </div>
+  </nav>
+
+  <!-- ─── 主区 ─── -->
+  <main class="main">
+    <header class="topbar">
+      <div class="tb-context">
+        <span><strong>小明</strong></span><span class="dot"></span>
+        <span class="hide-mobile">数学</span><span class="dot hide-mobile"></span>
+        <span class="tb-term-pill">四年级下 · 沪教版</span>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn" title="搜索">🔍</button>
+        <button class="tb-icon-btn" title="通知" style="position:relative"><span>🔔</span><span style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--cinnabar);border-radius:50%"></span></button>
+        <div class="tb-avatar" onclick="openDrawer()">明</div>
+      </div>
+    </header>
+
+    <div class="history-banner" id="historyBanner">⚠ 正在查看：<strong>四年级上历史记录</strong>，当前学期数据请切换回去。</div>
+
+    <div class="main-body" id="mainBody">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 1: 登录 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-login" style="display:flex">
+  <div style="margin:auto;max-width:380px;width:100%;text-align:center">
+    <div style="font-family:var(--font-serif);font-size:40px;font-weight:700;color:var(--pen);margin-bottom:4px">知了错题</div>
+    <div style="font-size:13px;color:var(--ink-muted);letter-spacing:3px;margin-bottom:36px">练一练，通了</div>
+
+    <div class="card" style="text-align:left;padding:28px">
+      <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;margin-bottom:6px">输入家庭码</div>
+      <div style="font-size:12px;color:var(--ink-muted);margin-bottom:18px">家长在微信小程序里能看到你的 6 位家庭码</div>
+
+      <!-- 6位家庭码输入 -->
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:24px" id="codeInputs">
+        <input maxlength="1" class="code-box" value="A">
+        <input maxlength="1" class="code-box" value="7">
+        <input maxlength="1" class="code-box" value="K">
+        <input maxlength="1" class="code-box" value="9">
+        <input maxlength="1" class="code-box" value="M">
+        <input maxlength="1" class="code-box" value="2">
+      </div>
+      <style>.code-box{width:42px;height:52px;text-align:center;font-family:var(--font-mono);font-size:24px;font-weight:600;border:1px solid var(--paper-rule);border-radius:var(--radius);background:var(--paper-card);color:var(--pen)}</style>
+
+      <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;margin:10px 0 12px">你是哪位？</div>
+      <div style="display:flex;gap:10px;margin-bottom:22px">
+        <div class="who-pick sel" onclick="pickWho(this)"><div class="who-avatar">明</div><div>小明</div><div style="font-size:11px;color:var(--ink-muted)">四年级</div></div>
+        <div class="who-pick" onclick="pickWho(this)"><div class="who-avatar" style="background:var(--m4)">红</div><div>小红</div><div style="font-size:11px;color:var(--ink-muted)">三年级</div></div>
+      </div>
+      <style>
+      .who-pick{flex:1;border:1px solid var(--paper-rule);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--paper)}
+      .who-pick:hover{border-color:var(--pen)}
+      .who-pick.sel{border-color:var(--pen);background:var(--pen-wash)}
+      .who-avatar{width:40px;height:40px;border-radius:var(--radius);background:var(--pen);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:18px;font-weight:600;margin:0 auto 8px}
+      </style>
+
+      <button class="btn btn-solid btn-big" onclick="switchScreen('dashboard',document.querySelector('[data-screen=dashboard]'))">进入学习 →</button>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:12px;color:var(--ink-muted);cursor:pointer;justify-content:center">
+        <input type="checkbox" checked> 记住我（30天内自动登录）
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 2: 首页·训练工作台 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="screen-title">今天要练什么</div>
+  <div class="screen-sub">系统根据你的错题和复习进度，安排好了今天的练习</div>
+
+  <!-- ① 今日要完成（主区域）-->
+  <div class="card" style="border-left:4px solid var(--pen);margin-bottom:16px;background:linear-gradient(135deg,var(--paper-card),var(--pen-wash))">
+    <div style="display:flex;align-items:flex-start;gap:16px">
+      <div style="font-family:var(--font-serif);font-size:28px">📝</div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--pen);font-weight:600;letter-spacing:1px">今日要完成</div>
+        <div style="font-family:var(--font-serif);font-size:20px;font-weight:700;margin:2px 0 8px">今日智能小测</div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft);margin-bottom:14px">
+          <span><strong style="font-family:var(--font-mono);font-size:16px;color:var(--ink)">12</strong> 题</span>
+          <span>约 <strong style="font-family:var(--font-mono);color:var(--ink)">15</strong> 分钟</span>
+          <span>难度 <strong style="color:var(--ink)">L2-L3</strong></span>
+          <span style="color:var(--ink-muted)">来自：近期错题 · 到期复习 · 长期薄弱</span>
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted);margin-bottom:14px;padding:6px 10px;background:var(--paper);border-radius:var(--radius);display:inline-block">覆盖 <strong style="color:var(--pen)">3 个</strong>未掌握知识点</div>
+        <div>
+          <button class="btn btn-solid btn-lg" onclick="switchScreen('exercise',null)">开始今天的练习 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 自己加练 -->
+  <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:14px">
+    <div style="font-family:var(--font-serif);font-size:24px">✏️</div>
+    <div style="flex:1">
+      <div style="font-family:var(--font-serif);font-size:15px;font-weight:600">自己加练</div>
+      <div style="font-size:12px;color:var(--ink-muted)">想多练一会儿？系统按你的薄弱点随机出 8-12 题</div>
+    </div>
+    <button class="btn btn-ghost" onclick="switchScreen('exercise',null)">开始自己加练</button>
+  </div>
+
+  <!-- ③ 本周计划 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📅 本周计划<span class="ct-more" onclick="switchScreen('training',document.querySelector('[data-screen=training]'))">全部计划 →</span></div>
+    <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
+      <div class="plan-chip today" onclick="switchScreen('exercise',null)">
+        <div class="pc-day">今天</div><div class="pc-date">6/23</div>
+        <div class="pc-info"><strong>12</strong>题 · 15min</div>
+        <div class="pc-status">● 今日</div>
+      </div>
+      <div class="plan-chip">
+        <div class="pc-day">明天</div><div class="pc-date">6/24</div>
+        <div class="pc-info"><strong>8</strong>题 · 10min</div>
+        <div class="pc-status">错题回顾</div>
+      </div>
+      <div class="plan-chip">
+        <div class="pc-day">周三</div><div class="pc-date">6/25</div>
+        <div class="pc-info"><strong>10</strong>题 · 12min</div>
+        <div class="pc-status">到期复习</div>
+      </div>
+      <div class="plan-chip overdue">
+        <div class="pc-day">⏳ 待补做</div><div class="pc-date">6/21</div>
+        <div class="pc-info"><strong>6</strong>题 · 8min</div>
+        <div class="pc-status" style="color:var(--warning)">上周未完成</div>
+      </div>
+    </div>
+    <style>
+    .plan-chip{min-width:120px;padding:12px;border:1px solid var(--paper-rule);border-radius:var(--radius);background:var(--paper);cursor:pointer;transition:all .15s}
+    .plan-chip:hover{border-color:var(--pen)}
+    .plan-chip.today{border-color:var(--pen);background:var(--pen-wash)}
+    .plan-chip.overdue{border-style:dashed;border-color:var(--warning)}
+    .pc-day{font-family:var(--font-serif);font-size:13px;font-weight:600;color:var(--ink)}
+    .pc-date{font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);margin-bottom:6px}
+    .pc-info{font-size:12px;color:var(--ink-soft);margin-bottom:4px}
+    .pc-status{font-size:11px;color:var(--ink-muted)}
+    </style>
+  </div>
+
+  <!-- ④ 本学期统计 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">本学期概况</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div class="stat-box" onclick="switchScreen('papers',document.querySelector('[data-screen=papers]'))"><div class="sb-num">8</div><div class="sb-label">已上传试卷</div></div>
+      <div class="stat-box" onclick="switchScreen('mistakes',document.querySelector('[data-screen=mistakes]'))"><div class="sb-num" style="color:var(--cinnabar)">23</div><div class="sb-label">累计错题</div></div>
+      <div class="stat-box" onclick="switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'))"><div class="sb-num" style="color:var(--pen)">15</div><div class="sb-label">涉及知识点</div></div>
+      <div class="stat-box"><div class="sb-num" style="color:var(--m4)">6</div><div class="sb-label">已掌握知识点</div></div>
+    </div>
+    <style>
+    .stat-box{text-align:center;padding:14px 8px;border:1px solid var(--paper-rule);border-radius:var(--radius);background:var(--paper);cursor:pointer;transition:all .15s}
+    .stat-box:hover{border-color:var(--pen);transform:translateY(-1px)}
+    .sb-num{font-family:var(--font-serif);font-size:30px;font-weight:700;color:var(--ink);line-height:1}
+    .sb-label{font-size:11px;color:var(--ink-muted);margin-top:6px}
+    </style>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- ⑤ 长期薄弱 Top3 -->
+    <div class="card">
+      <div class="card-title">📍 长期薄弱项 Top 3<span class="ct-more" onclick="switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'))">查看 →</span></div>
+      <div class="weak-row" onclick="switchScreen('knowledge-detail',null)"><span class="wr-name">乘法分配律</span><span class="tag tag-m1">需要加强</span><span class="wr-score">22</span></div>
+      <div class="weak-row" onclick="switchScreen('knowledge-detail',null)"><span class="wr-name">小数加减法</span><span class="tag tag-m2">进步中</span><span class="wr-score">38</span></div>
+      <div class="weak-row" onclick="switchScreen('knowledge-detail',null)"><span class="wr-name">运算顺序</span><span class="tag tag-m1">需要加强</span><span class="wr-score">28</span></div>
+      <style>
+      .weak-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--paper-rule);cursor:pointer;font-size:13px}
+      .weak-row:last-child{border-bottom:none}
+      .weak-row:hover .wr-name{color:var(--pen)}
+      .wr-name{flex:1;font-weight:500}
+      .wr-score{font-family:var(--font-mono);font-weight:700;color:var(--ink-muted)}
+      </style>
+    </div>
+
+    <!-- ⑥ 复盘入口 -->
+    <div class="card">
+      <div class="card-title">🔍 错题复盘</div>
+      <div class="review-item" onclick="switchScreen('mistakes',document.querySelector('[data-screen=mistakes]'))"><span style="font-size:20px">📋</span><div><div class="ri-title">全部错题</div><div class="ri-sub">按时间浏览所有错题</div></div></div>
+      <div class="review-item" onclick="switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'))"><span style="font-size:20px">📍</span><div><div class="ri-title">错题知识点</div><div class="ri-sub">看哪些知识点还没掌握</div></div></div>
+      <div class="review-item" onclick="switchScreen('papers',document.querySelector('[data-screen=papers]'))"><span style="font-size:20px">📚</span><div><div class="ri-title">我的试卷</div><div class="ri-sub">从试卷回看错题</div></div></div>
+      <style>
+      .review-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--paper-rule);cursor:pointer}
+      .review-item:last-child{border-bottom:none}
+      .review-item:hover .ri-title{color:var(--pen)}
+      .ri-title{font-weight:500;font-size:13px}
+      .ri-sub{font-size:11px;color:var(--ink-muted)}
+      </style>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 3: 训练（计划内任务列表）-->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-training">
+  <div class="screen-title">训练</div>
+  <div class="screen-sub">今天和本周系统安排的计划内练习（不含自己加练）</div>
+
+  <!-- 今日计划 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">今天</div>
+    <div class="train-task active-task" onclick="switchScreen('exercise',null)">
+      <div class="tt-left"><span class="tt-emoji">📝</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">今日智能小测</div>
+        <div class="tt-meta"><span><strong style="font-family:var(--font-mono)">12</strong> 题</span> · <span>约 <strong style="font-family:var(--font-mono)">15</strong> 分钟</span> · <span>难度 L2-L3</span> · <span style="color:var(--ink-muted)">覆盖 3 个未掌握知识点</span></div>
+      </div>
+      <div class="tt-right"><button class="btn btn-solid" onclick="event.stopPropagation();switchScreen('exercise',null)">开始</button></div>
+    </div>
+  </div>
+
+  <!-- 本周计划 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">本周计划</div>
+    <div class="train-task" onclick="switchScreen('exercise',null)">
+      <div class="tt-left"><span class="tt-emoji">🔄</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">错题回顾小测 <span class="tag tag-m2" style="font-size:10px">进步中</span></div>
+        <div class="tt-meta"><span class="tt-date">明天 6/24</span> · <span><strong style="font-family:var(--font-mono)">8</strong> 题</span> · <span>约 <strong style="font-family:var(--font-mono)">10</strong> 分钟</span> · <span style="color:var(--ink-muted)">来自最近 2 张试卷</span></div>
+      </div>
+      <div class="tt-right"><span class="tt-status">未开始</span></div>
+    </div>
+    <div class="train-task" onclick="switchScreen('exercise',null)">
+      <div class="tt-left"><span class="tt-emoji">📚</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">到期复习小测</div>
+        <div class="tt-meta"><span class="tt-date">周三 6/25</span> · <span><strong style="font-family:var(--font-mono)">10</strong> 题</span> · <span>约 <strong style="font-family:var(--font-mono)">12</strong> 分钟</span> · <span style="color:var(--ink-muted)">乘法分配律 / 小数加减法到期</span></div>
+      </div>
+      <div class="tt-right"><span class="tt-status">未开始</span></div>
+    </div>
+    <div class="train-task" onclick="switchScreen('exercise',null)">
+      <div class="tt-left"><span class="tt-emoji">📊</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">周末综合复习</div>
+        <div class="tt-meta"><span class="tt-date">周日 6/29</span> · <span><strong style="font-family:var(--font-mono)">20</strong> 题</span> · <span>约 <strong style="font-family:var(--font-mono)">25</strong> 分钟</span> · <span style="color:var(--ink-muted)">覆盖数与运算 / 图形与几何</span></div>
+      </div>
+      <div class="tt-right"><span class="tt-status">未开始</span></div>
+    </div>
+  </div>
+
+  <!-- 待补做 -->
+  <div class="card" style="border-style:dashed;border-color:var(--warning);margin-bottom:16px">
+    <div class="card-title" style="color:var(--warning)">⏳ 待补做</div>
+    <div class="train-task" onclick="switchScreen('exercise',null)">
+      <div class="tt-left"><span class="tt-emoji">⏰</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">上周未完成小测</div>
+        <div class="tt-meta"><span class="tt-date" style="color:var(--warning)">6/21 已过期</span> · <span><strong style="font-family:var(--font-mono)">6</strong> 题</span> · <span>约 <strong style="font-family:var(--font-mono)">8</strong> 分钟</span></div>
+      </div>
+      <div class="tt-right"><button class="btn btn-ghost" style="border-color:var(--warning);color:var(--warning)" onclick="event.stopPropagation();switchScreen('exercise',null)">补做</button></div>
+    </div>
+  </div>
+
+  <!-- 历史完成 -->
+  <div class="card">
+    <div class="card-title">最近完成的训练</div>
+    <div class="train-task done">
+      <div class="tt-left"><span class="tt-emoji">✅</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">每日智能小测</div>
+        <div class="tt-meta"><span class="tt-date">昨天 6/22</span> · <span><strong style="font-family:var(--font-mono)">12</strong> 题</span> · <span>正确率 <strong style="color:var(--success)">75%</strong></span> · <span style="color:var(--ink-muted)">乘法分配律 41→58</span></div>
+      </div>
+      <div class="tt-right"><span class="tt-status done">已完成</span></div>
+    </div>
+    <div class="train-task done">
+      <div class="tt-left"><span class="tt-emoji">✅</span></div>
+      <div class="tt-mid">
+        <div class="tt-title">每日智能小测</div>
+        <div class="tt-meta"><span class="tt-date">6/20</span> · <span><strong style="font-family:var(--font-mono)">10</strong> 题</span> · <span>正确率 <strong style="color:var(--success)">70%</strong></span></div>
+      </div>
+      <div class="tt-right"><span class="tt-status done">已完成</span></div>
+    </div>
+  </div>
+  <style>
+  .train-task{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--paper-rule);cursor:pointer;transition:all .15s}
+  .train-task:last-child{border-bottom:none}
+  .train-task:hover{background:var(--paper-soft);margin:0 -18px;padding:14px 18px;border-radius:var(--radius)}
+  .train-task.active-task{background:var(--pen-wash);margin:0 -18px;padding:14px 18px;border-radius:var(--radius);border-bottom-color:transparent}
+  .tt-emoji{font-family:var(--font-serif);font-size:24px}
+  .tt-mid{flex:1}
+  .tt-title{font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+  .tt-meta{font-size:12px;color:var(--ink-soft);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .tt-date{color:var(--ink-muted)}
+  .tt-status{font-size:12px;color:var(--ink-muted);font-weight:500}
+  .tt-status.done{color:var(--success)}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 4: 全部错题 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-mistakes">
+  <div class="screen-title">全部错题</div>
+  <div class="screen-sub">快速复习历史上所有错题，不必先回忆是哪张试卷</div>
+
+  <!-- 筛选栏 -->
+  <div class="card" style="margin-bottom:16px;padding:12px 16px">
+    <div class="filter-bar">
+      <div class="filter-group"><span class="fg-label">时间</span><button class="fchip sel">全部</button><button class="fchip">今天</button><button class="fchip">本周</button><button class="fchip">本月</button></div>
+      <div class="filter-group"><span class="fg-label">错因</span><button class="fchip sel">全部</button><button class="fchip">概念混淆</button><button class="fchip">计算失误</button><button class="fchip">符号错误</button><button class="fchip">审题错误</button></div>
+      <div class="filter-group"><span class="fg-label">掌握度</span><button class="fchip sel">全部</button><button class="fchip">需要加强</button><button class="fchip">进步中</button><button class="fchip">基本熟练</button></div>
+    </div>
+  </div>
+  <style>
+  .filter-bar{display:flex;flex-direction:column;gap:10px}
+  .filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .fg-label{font-size:11px;color:var(--ink-muted);width:42px;flex-shrink:0;letter-spacing:1px}
+  .fchip{font-family:inherit;font-size:12px;padding:4px 12px;border:1px solid var(--paper-rule);background:var(--paper);color:var(--ink-soft);border-radius:var(--radius-pill);cursor:pointer;transition:all .15s}
+  .fchip:hover{border-color:var(--pen)}
+  .fchip.sel{background:var(--pen);color:#fff;border-color:var(--pen)}
+  </style>
+
+  <!-- 今天分组 -->
+  <div class="mgroup-label">今天 · 6/23</div>
+  <div class="mistake-grid">
+    <div class="mistake-card" onclick="switchScreen('mistake-detail',null)">
+      <div class="mc-thumb"><div class="paper-mock"><div class="pl"></div><div class="pl m"></div><div class="pl"></div><div class="pl s"></div><span class="mark" style="top:30%;left:55%">✗</span></div></div>
+      <div class="mc-body">
+        <div class="mc-q">25 × (4 + 8) = ?</div>
+        <div class="mc-meta"><span class="err-tag">概念混淆</span> <span style="color:var(--ink-muted)">·</span> <span class="mc-src">第六单元测验</span></div>
+        <div class="mc-bottom"><span class="tag tag-m1">需要加强</span><span class="mc-time">今天 14:20</span></div>
+      </div>
+      <div class="mc-actions">
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation();switchScreen('mistake-detail',null)">看解析</button>
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">出类似题</button>
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">查看知识点</button>
+      </div>
+    </div>
+    <div class="mistake-card" onclick="switchScreen('mistake-detail',null)">
+      <div class="mc-thumb"><div class="paper-mock"><div class="pl"></div><div class="pl s"></div><div class="pl m"></div><span class="mark" style="top:50%;left:20%">✗</span></div></div>
+      <div class="mc-body">
+        <div class="mc-q">3.75 + 2.4 = ?</div>
+        <div class="mc-meta"><span class="err-tag t2">计算失误</span> <span style="color:var(--ink-muted)">·</span> <span class="mc-src">第六单元测验</span></div>
+        <div class="mc-bottom"><span class="tag tag-m2">进步中</span><span class="mc-time">今天 14:20</span></div>
+      </div>
+      <div class="mc-actions">
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation();switchScreen('mistake-detail',null)">看解析</button>
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">出类似题</button>
+        <button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">查看知识点</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本周分组 -->
+  <div class="mgroup-label">本周 · 6/17 - 6/22</div>
+  <div class="mistake-grid">
+    <div class="mistake-card" onclick="switchScreen('mistake-detail',null)">
+      <div class="mc-thumb"><div class="paper-mock"><div class="pl"></div><div class="pl"></div><div class="pl m"></div><div class="pl s"></div><span class="mark" style="top:40%;left:60%">✗</span></div></div>
+      <div class="mc-body">
+        <div class="mc-q">一个长方形长 12cm，宽 8cm，面积是？</div>
+        <div class="mc-meta"><span class="err-tag">概念混淆</span> <span style="color:var(--ink-muted)">·</span> <span class="mc-src">第五单元测验</span></div>
+        <div class="mc-bottom"><span class="tag tag-m2">进步中</span><span class="mc-time">6/20</span></div>
+      </div>
+      <div class="mc-actions"><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">看解析</button><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">出类似题</button><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">查看知识点</button></div>
+    </div>
+    <div class="mistake-card" onclick="switchScreen('mistake-detail',null)">
+      <div class="mc-thumb"><div class="paper-mock"><div class="pl"></div><div class="pl s"></div><span class="mark" style="top:60%;left:30%">✗</span></div></div>
+      <div class="mc-body">
+        <div class="mc-q">-5 + (+3) = ?</div>
+        <div class="mc-meta"><span class="err-tag t3">符号错误</span> <span style="color:var(--ink-muted)">·</span> <span class="mc-src">专项练习</span></div>
+        <div class="mc-bottom"><span class="tag tag-m3">基本熟练</span><span class="mc-time">6/19</span></div>
+      </div>
+      <div class="mc-actions"><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">看解析</button><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">出类似题</button><button class="btn btn-soft" style="font-size:12px;padding:6px 10px" onclick="event.stopPropagation()">查看知识点</button></div>
+    </div>
+  </div>
+  <style>
+  .mgroup-label{font-family:var(--font-serif);font-size:14px;font-weight:600;color:var(--ink-soft);margin:18px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--paper-rule);display:flex;align-items:center;gap:8px}
+  .mgroup-label::before{content:"";width:3px;height:14px;background:var(--pen);border-radius:2px}
+  .mistake-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .mistake-card{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:10px}
+  .mistake-card:hover{border-color:var(--pen);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .mc-thumb{width:100%;height:88px;display:flex}
+  .mc-thumb .paper-mock{width:100%;height:100%}
+  .mc-q{font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.4}
+  .mc-meta{font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:4px;margin-bottom:8px}
+  .mc-src{color:var(--ink-muted)}
+  .mc-bottom{display:flex;align-items:center;justify-content:space-between}
+  .mc-time{font-size:11px;color:var(--ink-muted);font-family:var(--font-mono)}
+  .mc-actions{display:flex;gap:6px;border-top:1px dashed var(--paper-rule);padding-top:10px}
+  .mc-actions .btn{flex:1;justify-content:center}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 5: 我的试卷 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-papers">
+  <div class="screen-title">我的试卷</div>
+  <div class="screen-sub">历史上传的所有试卷，点击可回看完整试卷和提炼出的错题</div>
+
+  <!-- 横幅兜底（v1.3 新增：未查看的已完成分析）-->
+  <div class="card" style="margin-bottom:16px;background:var(--pen-wash);border-color:var(--pen);display:flex;align-items:center;gap:14px;cursor:pointer;padding:14px 18px" onclick="switchScreen('paper-detail',null)">
+    <span style="font-family:var(--font-serif);font-size:22px">📬</span>
+    <div style="flex:1"><div style="font-weight:600;color:var(--pen);font-size:14px">1 份新分析完成，去看看 →</div><div style="font-size:12px;color:var(--ink-soft)">第六单元测验 · 今天完成分析</div></div>
+    <span style="color:var(--pen)">→</span>
+  </div>
+
+  <div class="mgroup-label">本周 · 6/17 - 6/23</div>
+  <div class="paper-grid">
+    <!-- 分析中（渐进状态）-->
+    <div class="paper-card">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl m"></div><div class="pl"></div><div class="pl s"></div></div><div class="pp-stage">分析错因中…</div></div>
+      <div class="pp-body"><div class="pp-name">第七单元随堂练习</div><div class="pp-date">今天 15:30</div><div class="pp-status analyzing"><span class="pp-dot"></span>分析中 · Qwen-VL</div></div>
+    </div>
+    <!-- 已完成 -->
+    <div class="paper-card" onclick="switchScreen('paper-detail',null)">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl"></div><div class="pl m"></div><span class="mark" style="top:30%;left:55%">✗</span><span class="mark" style="top:55%;left:20%">✗</span></div><div class="pp-stage done">分析完成</div></div>
+      <div class="pp-body"><div class="pp-name">第六单元测验</div><div class="pp-date">今天 14:20</div><div class="pp-stats"><span><strong style="font-family:var(--font-mono);color:var(--cinnabar)">5</strong> 错题</span><span><strong style="font-family:var(--font-mono);color:var(--pen)">3</strong> 知识点</span></div></div>
+    </div>
+  </div>
+
+  <div class="mgroup-label">本月 · 6/1 - 6/16</div>
+  <div class="paper-grid">
+    <div class="paper-card" onclick="switchScreen('paper-detail',null)">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl m"></div><div class="pl s"></div><span class="mark" style="top:45%;left:60%">✗</span></div><div class="pp-stage done">分析完成</div></div>
+      <div class="pp-body"><div class="pp-name">第五单元测验</div><div class="pp-date">6/14</div><div class="pp-stats"><span><strong style="font-family:var(--font-mono);color:var(--cinnabar)">4</strong> 错题</span><span><strong style="font-family:var(--font-mono);color:var(--pen)">2</strong> 知识点</span></div></div>
+    </div>
+    <div class="paper-card" onclick="switchScreen('paper-detail',null)">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl"></div><div class="pl s"></div><span class="mark" style="top:35%;left:30%">✗</span></div><div class="pp-stage done">分析完成</div></div>
+      <div class="pp-body"><div class="pp-name">期中复习卷（二）</div><div class="pp-date">6/8</div><div class="pp-stats"><span><strong style="font-family:var(--font-mono);color:var(--cinnabar)">7</strong> 错题</span><span><strong style="font-family:var(--font-mono);color:var(--pen)">5</strong> 知识点</span></div></div>
+    </div>
+    <div class="paper-card" onclick="switchScreen('paper-detail',null)">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl m"></div></div><div class="pp-stage done">分析完成</div></div>
+      <div class="pp-body"><div class="pp-name">第四单元测验</div><div class="pp-date">6/3</div><div class="pp-stats"><span><strong style="font-family:var(--font-mono);color:var(--cinnabar)">3</strong> 错题</span><span><strong style="font-family:var(--font-mono);color:var(--pen)">2</strong> 知识点</span></div></div>
+    </div>
+    <div class="paper-card" style="opacity:.7">
+      <div class="pp-img"><div class="paper-mock"><div class="pl"></div><div class="pl s"></div></div><div class="pp-stage failed">识别失败 · 重试</div></div>
+      <div class="pp-body"><div class="pp-name">口算练习卡</div><div class="pp-date">6/1</div><div class="pp-status failed"><span class="pp-dot" style="background:var(--danger)"></span>识别失败，点击重试</div></div>
+    </div>
+  </div>
+  <style>
+  .paper-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .paper-card{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .15s}
+  .paper-card:hover{border-color:var(--pen);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .pp-img{height:130px;padding:14px;position:relative;background:var(--paper-soft);display:flex}
+  .pp-img .paper-mock{flex:1}
+  .pp-stage{position:absolute;bottom:8px;left:8px;font-size:10px;padding:2px 8px;border-radius:var(--radius);background:rgba(255,253,245,.92);color:var(--ink-soft);font-weight:600;backdrop-filter:blur(2px)}
+  .pp-stage.done{color:var(--success)}
+  .pp-stage.failed{color:var(--danger)}
+  .pp-body{padding:12px 14px}
+  .pp-name{font-family:var(--font-serif);font-size:14px;font-weight:600;margin-bottom:2px}
+  .pp-date{font-size:11px;color:var(--ink-muted);font-family:var(--font-mono);margin-bottom:8px}
+  .pp-stats{display:flex;gap:14px;font-size:12px;color:var(--ink-soft)}
+  .pp-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-muted)}
+  .pp-status.analyzing{color:var(--pen)}
+  .pp-status.failed{color:var(--danger)}
+  .pp-dot{width:7px;height:7px;border-radius:50%;background:var(--pen);animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 6: 试卷详情 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-paper-detail">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <button class="btn btn-soft" style="padding:6px 12px;font-size:13px" onclick="switchScreen('papers',document.querySelector('[data-screen=papers]'))">← 我的试卷</button>
+  </div>
+  <div class="screen-title">第六单元测验</div>
+  <div class="screen-sub">今天 14:20 拍摄 · 四年级下 · 沪教版 · 含 5 道错题 · 涉及 3 个知识点</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+    <!-- 左：整卷图 -->
+    <div class="card">
+      <div class="card-title">📄 完整试卷</div>
+      <div class="paper-full">
+        <div class="paper-mock-lg">
+          <div class="pll"></div><div class="pll"></div><div class="pll m"></div>
+          <div class="pll"></div><div class="pll s"></div><div class="pll"></div>
+          <div class="pll m"></div><div class="pll"></div><div class="pll"></div>
+          <div class="pll s"></div><div class="pll"></div><div class="pll m"></div>
+          <div class="pll"></div>
+          <span class="mark-lg" style="top:18%;left:62%">✗</span>
+          <span class="mark-lg" style="top:34%;left:25%">✗</span>
+          <span class="mark-lg" style="top:52%;left:60%">✗</span>
+          <span class="mark-lg" style="top:68%;left:30%">✗</span>
+          <span class="mark-lg" style="top:82%;left:55%">✗</span>
+        </div>
+        <div class="pf-note">红 ✗ 标记系统识别出的错题位置</div>
+      </div>
+      <style>
+      .paper-full{padding:8px 0}
+      .paper-mock-lg{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:var(--radius);padding:20px 24px;display:flex;flex-direction:column;gap:8px;position:relative;min-height:360px}
+      .pll{height:5px;background:rgba(30,77,140,.1);border-radius:1px}
+      .pll.s{width:45%}.pll.m{width:70%}
+      .mark-lg{position:absolute;color:var(--cinnabar);font-family:var(--font-serif);font-size:22px;font-weight:700}
+      .pf-note{text-align:center;font-size:11px;color:var(--ink-muted);margin-top:10px}
+      </style>
+    </div>
+
+    <!-- 右：提炼出的错题 -->
+    <div class="card">
+      <div class="card-title">系统提炼的错题（5）</div>
+      <div class="pe-item" onclick="switchScreen('mistake-detail',null)">
+        <div class="pe-num">1</div>
+        <div class="pe-body">
+          <div class="pe-q">25 × (4 + 8) = ?</div>
+          <div class="pe-meta"><span class="err-tag">概念混淆</span><span class="pe-link" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">乘法分配律 →</span></div>
+          <div class="pe-solve"><span style="color:var(--ink-muted)">正确解法：</span>= 25×4 + 25×8 = 100+200 = <strong>300</strong></div>
+        </div>
+      </div>
+      <div class="pe-item" onclick="switchScreen('mistake-detail',null)">
+        <div class="pe-num">2</div>
+        <div class="pe-body">
+          <div class="pe-q">3.75 + 2.4 = ?</div>
+          <div class="pe-meta"><span class="err-tag t2">计算失误</span><span class="pe-link" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">小数加减法 →</span></div>
+          <div class="pe-solve"><span style="color:var(--ink-muted)">正确解法：</span>小数点对齐 = <strong>6.15</strong>（非 3.99）</div>
+        </div>
+      </div>
+      <div class="pe-item" onclick="switchScreen('mistake-detail',null)">
+        <div class="pe-num">3</div>
+        <div class="pe-body">
+          <div class="pe-q">-7 + (+4) = ?</div>
+          <div class="pe-meta"><span class="err-tag t3">符号错误</span><span class="pe-link" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">正负数运算 →</span></div>
+          <div class="pe-solve"><span style="color:var(--ink-muted)">正确解法：</span>异号取绝对值大者符号 = <strong>-3</strong></div>
+        </div>
+      </div>
+      <div class="pe-item" onclick="switchScreen('mistake-detail',null)">
+        <div class="pe-num">4</div>
+        <div class="pe-body">
+          <div class="pe-q">长方形长 12cm 宽 8cm，周长 = ?</div>
+          <div class="pe-meta"><span class="err-tag">概念混淆</span><span class="pe-link" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">长方形周长 →</span></div>
+          <div class="pe-solve"><span style="color:var(--ink-muted)">正确解法：</span>(12+8)×2 = <strong>40cm</strong></div>
+        </div>
+      </div>
+      <div class="pe-item" onclick="switchScreen('mistake-detail',null)">
+        <div class="pe-num">5</div>
+        <div class="pe-body">
+          <div class="pe-q">48 ÷ (6 + 2) × 3 = ?</div>
+          <div class="pe-meta"><span class="err-tag t2">计算失误</span><span class="pe-link" onclick="event.stopPropagation();switchScreen('knowledge-detail',null)">运算顺序 →</span></div>
+          <div class="pe-solve"><span style="color:var(--ink-muted)">正确解法：</span>= 48÷8×3 = 6×3 = <strong>18</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+  .pe-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--paper-rule);cursor:pointer}
+  .pe-item:last-child{border-bottom:none}
+  .pe-item:hover{background:var(--paper-soft);margin:0 -18px;padding:12px 18px;border-radius:var(--radius)}
+  .pe-num{width:24px;height:24px;border-radius:50%;background:var(--cinnabar);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:700;flex-shrink:0}
+  .pe-q{font-family:var(--font-mono);font-size:14px;font-weight:600;margin-bottom:6px}
+  .pe-meta{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .pe-link{font-size:12px;color:var(--pen);cursor:pointer;font-weight:500}
+  .pe-solve{font-size:12px;color:var(--ink-soft);background:var(--paper);padding:6px 10px;border-radius:var(--radius);font-family:var(--font-mono)}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 7: 错题知识点 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-knowledge">
+  <div class="screen-title">错题知识点</div>
+  <div class="screen-sub">被错题触发过的所有知识点 · 两列卡片方便扫描</div>
+
+  <!-- 筛选 + 排序 -->
+  <div class="card" style="margin-bottom:16px;padding:12px 16px">
+    <div class="filter-bar">
+      <div class="filter-group"><span class="fg-label">分类</span><button class="fchip sel">全部</button><button class="fchip">数与运算</button><button class="fchip">图形与几何</button><button class="fchip">统计概率</button><button class="fchip">综合应用</button></div>
+      <div class="filter-group"><span class="fg-label">排序</span><button class="fchip sel">掌握度升序</button><button class="fchip">错题次数</button><button class="fchip">最近出错</button><button class="fchip">分数区间</button></div>
+      <div class="filter-group"><span class="fg-label">筛选</span><button class="fchip">长期薄弱</button><button class="fchip">到期复习</button></div>
+    </div>
+  </div>
+
+  <div class="kp-grid">
+    <!-- 知识点卡片（密集两列）-->
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">乘法分配律</span><span class="kp-weak" title="长期薄弱">📍</span></div>
+      <div class="kp-cat">数与运算 · 沪教版三下第五单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:38%;background:var(--m1)"></div></div><span class="kp-score">22</span></div>
+      <div class="kp-tags"><span class="tag tag-m1">需要加强</span></div>
+      <div class="kp-stats"><span>错题 <strong>4</strong></span><span>最近出错 <strong>今天</strong></span><span>下次复习 <strong style="color:var(--pen)">明天</strong></span></div>
+    </div>
+
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">运算顺序</span><span class="kp-weak">📍</span></div>
+      <div class="kp-cat">数与运算 · 沪教版四下第三单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:46%;background:var(--m1)"></div></div><span class="kp-score">28</span></div>
+      <div class="kp-tags"><span class="tag tag-m1">需要加强</span></div>
+      <div class="kp-stats"><span>错题 <strong>3</strong></span><span>最近出错 <strong>今天</strong></span><span>下次复习 <strong style="color:var(--pen)">今天</strong></span></div>
+    </div>
+
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">小数加减法</span></div>
+      <div class="kp-cat">数与运算 · 沪教版四下第二单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:58%;background:var(--m2)"></div></div><span class="kp-score">38</span></div>
+      <div class="kp-tags"><span class="tag tag-m2">进步中</span></div>
+      <div class="kp-stats"><span>错题 <strong>3</strong></span><span>最近出错 <strong>今天</strong></span><span>下次复习 <strong style="color:var(--pen)">周三</strong></span></div>
+    </div>
+
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">正负数运算</span></div>
+      <div class="kp-cat">数与运算 · 沪教版四下第四单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:68%;background:var(--m3)"></div></div><span class="kp-score">55</span></div>
+      <div class="kp-tags"><span class="tag tag-m2">进步中</span></div>
+      <div class="kp-stats"><span>错题 <strong>2</strong></span><span>最近出错 <strong>6/19</strong></span><span>下次复习 <strong style="color:var(--ink-muted)">6/30</strong></span></div>
+    </div>
+
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">长方形周长与面积</span></div>
+      <div class="kp-cat">图形与几何 · 沪教版四上第五单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:78%;background:var(--m3)"></div></div><span class="kp-score">68</span></div>
+      <div class="kp-tags"><span class="tag tag-m3">基本熟练</span></div>
+      <div class="kp-stats"><span>错题 <strong>2</strong></span><span>最近出错 <strong>6/14</strong></span><span>下次复习 <strong style="color:var(--ink-muted)">7/2</strong></span></div>
+    </div>
+
+    <div class="kp-card" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">平均数</span></div>
+      <div class="kp-cat">统计概率 · 沪教版四下第六单元</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:85%;background:var(--m3)"></div></div><span class="kp-score">72</span></div>
+      <div class="kp-tags"><span class="tag tag-m3">基本熟练</span></div>
+      <div class="kp-stats"><span>错题 <strong>1</strong></span><span>最近出错 <strong>6/8</strong></span><span>下次复习 <strong style="color:var(--ink-muted)">7/5</strong></span></div>
+    </div>
+
+    <div class="kp-card archived" onclick="switchScreen('knowledge-detail',null)">
+      <div class="kp-top"><span class="kp-name">乘法口诀表</span></div>
+      <div class="kp-cat">数与运算 · 沪教版二上</div>
+      <div class="kp-mastery"><div class="mastery-bar"><div class="fill" style="width:100%;background:var(--m5)"></div></div><span class="kp-score">93</span></div>
+      <div class="kp-tags"><span class="tag tag-m5">已掌握 ✓</span><span class="kp-probe">探针 · 7/1</span></div>
+      <div class="kp-stats"><span>错题 <strong>0</strong></span><span style="color:var(--m5)">已归档 · 衰减探针中</span></div>
+    </div>
+  </div>
+  <style>
+  .kp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kp-card{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:all .15s}
+  .kp-card:hover{border-color:var(--pen);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .kp-card.archived{background:var(--m5-bg);border-color:rgba(184,134,11,.2)}
+  .kp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .kp-name{font-family:var(--font-serif);font-size:15px;font-weight:600;color:var(--ink)}
+  .kp-weak{font-size:14px}
+  .kp-cat{font-size:11px;color:var(--ink-muted);margin-bottom:10px}
+  .kp-mastery{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kp-mastery .mastery-bar{flex:1}
+  .kp-score{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink);min-width:26px;text-align:right}
+  .kp-tags{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .kp-probe{font-size:10px;color:var(--m5);background:rgba(184,134,11,.1);padding:1px 6px;border-radius:var(--radius-pill);font-weight:600}
+  .kp-stats{display:flex;gap:14px;font-size:11px;color:var(--ink-muted);padding-top:8px;border-top:1px dashed var(--paper-rule)}
+  .kp-stats strong{color:var(--ink-soft);font-family:var(--font-mono)}
+  @media(max-width:680px){.kp-grid{grid-template-columns:1fr}}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 8: 知识点详情·微型讲解课 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-knowledge-detail">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <button class="btn btn-soft" style="padding:6px 12px;font-size:13px" onclick="switchScreen('knowledge',document.querySelector('[data-screen=knowledge]'))">← 错题知识点</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div class="screen-title" style="margin-bottom:0">乘法分配律</div>
+    <span class="tag tag-m1">需要加强</span>
+    <span class="kp-probe" style="font-size:10px;color:var(--cinnabar);background:var(--cinnabar-wash);padding:2px 8px;border-radius:var(--radius-pill);font-weight:600">📍 长期薄弱</span>
+  </div>
+  <div class="screen-sub">数与运算 · 沪教版三下第五单元 · 微型讲解课</div>
+
+  <!-- 掌握状态条 -->
+  <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--m1);line-height:1">22</div><div style="font-size:11px;color:var(--ink-muted);margin-top:2px">当前掌握度</div></div>
+    <div style="flex:1;min-width:180px">
+      <div class="mastery-bar" style="height:8px;margin-bottom:6px"><div class="fill" style="width:38%;background:var(--m1)"></div></div>
+      <div style="font-size:11px;color:var(--ink-muted);font-family:var(--font-mono)">趋势：15 → 18 → 22 ↗</div>
+    </div>
+    <div style="display:flex;gap:16px;font-size:12px">
+      <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--cinnabar)">4</div><div style="color:var(--ink-muted);font-size:11px">错题数</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--pen)">明天</div><div style="color:var(--ink-muted);font-size:11px">下次复习</div></div>
+    </div>
+  </div>
+
+  <!-- ① 第一屏·讲解（主内容）-->
+  <div class="card lesson-block" style="margin-bottom:16px;border-left:4px solid var(--pen)">
+    <div class="card-title">📖 讲解</div>
+    <div class="lesson-part">
+      <div class="lp-label">是什么</div>
+      <div class="lp-text">两个数的<strong>和</strong>与一个数相乘，可以先把它们分别与这个数相乘，再相加。即：</div>
+      <div class="formula">(a + b) × c = a×c + b×c</div>
+    </div>
+    <div class="lesson-part">
+      <div class="lp-label">什么时候用</div>
+      <div class="lp-text">遇到 <strong>( ) × 数字</strong> 的形式，或者想简化计算时。比如 <span class="formula-inline">25 × (4 + 8)</span>，直接算 25×12 不好算，拆开算 25×4=100、25×8=200 反而很快。</div>
+    </div>
+    <div class="lesson-part">
+      <div class="lp-label">怎么做</div>
+      <div class="step"><span class="step-n">1</span><span>看到括号里有加法，外面有乘法</span></div>
+      <div class="step"><span class="step-n">2</span><span>把外面的数<strong>分别</strong>乘进去</span></div>
+      <div class="step"><span class="step-n">3</span><span>两个结果<strong>再加起来</strong></span></div>
+    </div>
+    <div class="lesson-part">
+      <div class="lp-label">分步例题</div>
+      <div class="example">
+        <div class="ex-q">25 × (4 + 8) = ?</div>
+        <div class="ex-line">= 25 × 4 + 25 × 8 <span class="ex-note">← 分配：分别乘</span></div>
+        <div class="ex-line">= 100 + 200 <span class="ex-note">← 分别算出来</span></div>
+        <div class="ex-line ex-ans">= <strong>300</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 与你的错因连接 -->
+  <div class="card" style="margin-bottom:16px;border-left:4px solid var(--cinnabar)">
+    <div class="card-title" style="color:var(--cinnabar)">🔗 你是怎么错的</div>
+    <div style="font-size:12px;color:var(--ink-muted);margin-bottom:12px">从你的真实错题中抽取，看清到底卡在哪一步</div>
+    <div class="err-link">
+      <div class="el-wrong">
+        <div class="el-q">25 × (4 + 8) = ?  →  你答了 108</div>
+        <div class="el-why"><strong>错在：</strong>只乘了一边，25×4=100 然后直接 +8 = 108。分配律要求<strong>两边都要乘</strong>，漏乘了 8。</div>
+        <div class="err-tag" style="margin-top:6px">concept_confusion · 概念混淆</div>
+      </div>
+    </div>
+    <div class="err-link">
+      <div class="el-wrong">
+        <div class="el-q">36 × (10 - 2) = ?  →  你答了 360</div>
+        <div class="el-why"><strong>错在：</strong>括号里是<strong>减法</strong>时，分配后符号要跟着变。36×10 - 36×2 = 360 - 72 = <strong>288</strong>，不是只算 36×10。</div>
+        <div class="err-tag t3" style="margin-top:6px">sign_error · 符号错误</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 常见错误对比 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">⚠️ 常见错误对比</div>
+    <div class="cmp-grid">
+      <div class="cmp-cell wrong"><div class="cmp-h">❌ 典型错法</div><div class="formula-inline">a×(b+c) = a×b + c</div><div class="cmp-note">只乘一边，漏乘了 c</div></div>
+      <div class="cmp-cell right"><div class="cmp-h">✅ 正确做法</div><div class="formula-inline">a×(b+c) = a×b + a×c</div><div class="cmp-note">两边都要乘 a</div></div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--ink-soft);background:var(--paper-warm);padding:8px 12px;border-radius:var(--radius)">💡 <strong>易混：</strong>别和「乘法结合律」(a×b)×c = a×(b×c) 搞混——结合律是换乘的位置，分配律是分配到加法上。</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- ④ 关联错题 -->
+    <div class="card">
+      <div class="card-title">📋 关联错题（4）</div>
+      <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag">概念混淆</span><span class="rel-q">25 × (4 + 8) = ?</span><span class="rel-time">今天</span></div>
+      <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag t3">符号错误</span><span class="rel-q">36 × (10 - 2) = ?</span><span class="rel-time">6/20</span></div>
+      <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag">概念混淆</span><span class="rel-q">102 × 35 = ?</span><span class="rel-time">6/14</span></div>
+      <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag t2">计算失误</span><span class="rel-q">48 × 99 + 48 = ?</span><span class="rel-time">6/8</span></div>
+    </div>
+    <!-- ⑤ 推荐资源 -->
+    <div class="card">
+      <div class="card-title">🎬 推荐资源</div>
+      <div class="res-item"><span style="font-size:20px">🎥</span><div><div class="res-title">5分钟搞懂乘法分配律</div><div class="res-sub">视频 · 6分钟</div></div></div>
+      <div class="res-item"><span style="font-size:20px">🖼️</span><div><div class="res-title">分配律图解卡</div><div class="res-sub">图解 · 可保存</div></div></div>
+      <div class="res-item"><span style="font-size:20px">📄</span><div><div class="res-title">分配律专项练习（含答案）</div><div class="res-sub">PDF · 2页</div></div></div>
+    </div>
+  </div>
+
+  <!-- ⑥⑦ 专项练习入口 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card" style="background:var(--pen-wash);border-color:var(--pen);text-align:center">
+      <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:6px">针对这个知识点练 5 题</div>
+      <div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">围绕「乘法分配律」生成变式题</div>
+      <button class="btn btn-solid btn-big" onclick="switchScreen('exercise',null)">开始专项练习</button>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:6px">从你的错题生成 3-5 道类似题</div>
+      <div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">即时巩固同类错因</div>
+      <button class="btn btn-ghost btn-big" onclick="switchScreen('exercise',null)">出类似题</button>
+    </div>
+  </div>
+  <style>
+  .lesson-block{background:linear-gradient(180deg,var(--paper-card),var(--pen-wash))}
+  .lesson-part{margin-bottom:18px}
+  .lesson-part:last-child{margin-bottom:0}
+  .lp-label{font-family:var(--font-serif);font-size:13px;font-weight:600;color:var(--pen);margin-bottom:6px}
+  .lp-text{font-size:14px;color:var(--ink);line-height:1.7}
+  .formula{font-family:var(--font-mono);font-size:18px;background:var(--paper-card);padding:12px;border-radius:var(--radius);text-align:center;margin:8px 0;border:1px solid var(--paper-rule);color:var(--pen);font-weight:600}
+  .formula-inline{font-family:var(--font-mono);background:var(--paper-soft);padding:1px 6px;border-radius:3px;font-size:13px}
+  .step{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px}
+  .step-n{width:22px;height:22px;border-radius:50%;background:var(--pen);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:700;flex-shrink:0}
+  .example{background:var(--paper-card);border:1px solid var(--paper-rule);border-radius:var(--radius);padding:14px;font-family:var(--font-mono);font-size:14px}
+  .ex-q{color:var(--ink);font-weight:600;margin-bottom:8px;font-size:15px}
+  .ex-line{color:var(--ink-soft);padding:2px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ex-ans{color:var(--success);font-size:17px;margin-top:4px}
+  .ex-note{font-family:var(--font-sans);font-size:11px;color:var(--ink-muted)}
+  .err-link{padding:10px 0;border-bottom:1px dashed var(--paper-rule)}
+  .err-link:last-child{border-bottom:none}
+  .el-wrong{background:var(--cinnabar-wash);border-radius:var(--radius);padding:12px}
+  .el-q{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--cinnabar);margin-bottom:6px}
+  .el-why{font-size:13px;color:var(--ink);line-height:1.6}
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cmp-cell{border-radius:var(--radius);padding:12px}
+  .cmp-cell.wrong{background:var(--cinnabar-wash);border:1px solid rgba(192,57,43,.15)}
+  .cmp-cell.right{background:rgba(45,122,79,.08);border:1px solid rgba(45,122,79,.15)}
+  .cmp-h{font-family:var(--font-serif);font-size:12px;font-weight:600;margin-bottom:8px}
+  .cmp-cell.wrong .cmp-h{color:var(--cinnabar)}
+  .cmp-cell.right .cmp-h{color:var(--success)}
+  .cmp-note{font-size:11px;color:var(--ink-muted);margin-top:6px}
+  .rel-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--paper-rule);cursor:pointer;font-size:12px}
+  .rel-item:last-child{border-bottom:none}
+  .rel-item:hover .rel-q{color:var(--pen)}
+  .rel-q{flex:1;font-family:var(--font-mono);font-weight:500}
+  .rel-time{color:var(--ink-muted);font-size:11px}
+  .res-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--paper-rule);cursor:pointer}
+  .res-item:last-child{border-bottom:none}
+  .res-item:hover .res-title{color:var(--pen)}
+  .res-title{font-size:13px;font-weight:500}
+  .res-sub{font-size:11px;color:var(--ink-muted)}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 9: 答题（逐题）-->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-exercise">
+  <!-- 动机A：进度条常驻顶部 -->
+  <div class="card" id="progressCard" style="margin-bottom:16px;background:var(--pen-wash);border-color:var(--pen);position:sticky;top:0;z-index:5">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-family:var(--font-serif);font-size:14px;font-weight:600;color:var(--pen)">乘法分配律 · 本次练习</div>
+      <div style="font-size:12px;color:var(--ink-soft);font-family:var(--font-mono)">第 <span id="qIdx">3</span> / 12 题</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="mastery-bar" style="flex:1;height:8px"><div class="fill" id="masteryFill" style="width:38%;background:var(--pen)"></div></div>
+      <div style="font-size:13px;color:var(--pen);font-weight:600;white-space:nowrap">再答对 <span class="flip-num" id="remainNum">3</span> 题掌握</div>
+    </div>
+  </div>
+
+  <div style="max-width:640px;margin:0 auto">
+    <!-- 题目 -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <span class="tag tag-m2" style="font-size:10px">进步中</span>
+        <span style="font-size:12px;color:var(--ink-muted)">难度 L2 · 直接应用</span>
+      </div>
+      <div class="ex-question">
+        <div class="eq-label">题目</div>
+        <div class="eq-text">25 × (4 + 8) = ?</div>
+      </div>
+
+      <!-- 答案输入 -->
+      <div class="ans-area" id="ansArea">
+        <div class="ans-label">你的答案</div>
+        <div class="ans-display" id="ansDisplay">点击输入</div>
+        <div class="num-pad" style="margin-top:16px">
+          <button onclick="inputAns('7')">7</button><button onclick="inputAns('8')">8</button><button onclick="inputAns('9')">9</button>
+          <button onclick="inputAns('4')">4</button><button onclick="inputAns('5')">5</button><button onclick="inputAns('6')">6</button>
+          <button onclick="inputAns('1')">1</button><button onclick="inputAns('2')">2</button><button onclick="inputAns('3')">3</button>
+          <button onclick="inputAns('0')">0</button><button onclick="inputAns('.')">.</button><button onclick="inputAns('-')" style="font-size:18px">±</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-soft" onclick="clearAns()">⌫ 清除</button>
+          <button class="btn btn-solid" style="flex:1;justify-content:center" onclick="submitAns()">提交答案</button>
+        </div>
+      </div>
+
+      <!-- 反馈区（提交后显示）-->
+      <div class="feedback-area" id="feedbackArea" style="display:none">
+        <div class="fb-card wrong">
+          <div class="fb-head"><span class="fb-icon">✗</span><span class="fb-title">不对哦，再想想</span></div>
+          <div style="margin:12px 0">
+            <div style="font-size:12px;color:var(--ink-muted);margin-bottom:4px">你的答案</div>
+            <div style="font-family:var(--font-mono);font-size:20px;color:var(--cinnabar);font-weight:600;text-decoration:line-through">108</div>
+          </div>
+          <div style="background:rgba(45,122,79,.08);border-radius:var(--radius);padding:12px;margin:10px 0">
+            <div style="font-size:12px;color:var(--success);font-weight:600;margin-bottom:6px">✓ 正确解法</div>
+            <div style="font-size:14px;line-height:1.8;font-family:var(--font-mono)">25 × (4 + 8)<br>= 25×4 + 25×8 <span class="ex-note">← 分配律</span><br>= 100 + 200<br>= <strong style="color:var(--success)">300</strong></div>
+          </div>
+          <div style="margin:10px 0"><div style="font-size:12px;color:var(--ink-muted);margin-bottom:4px">错因</div><span class="err-tag">concept_confusion · 概念混淆</span><div style="font-size:12px;color:var(--ink-soft);margin-top:6px">只乘了一边，漏乘了 8。分配律要求两边都要乘。</div></div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="retryQ()">🔄 再试一次</button>
+            <button class="btn btn-solid" style="flex:1;justify-content:center" onclick="nextQ()">看答案，下一题 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:12px;color:var(--ink-muted);margin-top:20px">提示：答对一题，顶部「再答对 X 题」会减一，进度条会前进</div>
+  </div>
+  <style>
+  .ex-question{background:var(--paper-soft);border-radius:var(--radius);padding:16px;margin-bottom:16px;border:1px solid var(--paper-rule)}
+  .eq-label{font-size:11px;color:var(--ink-muted);letter-spacing:1px;margin-bottom:8px}
+  .eq-text{font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--ink);text-align:center;padding:8px 0}
+  .ans-area{padding:8px 0}
+  .ans-label{font-size:12px;color:var(--ink-muted);margin-bottom:8px}
+  .ans-display{font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--pen);text-align:center;padding:16px;border:2px dashed var(--paper-rule);border-radius:var(--radius);min-height:64px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .ans-display.filled{border-style:solid;border-color:var(--pen);background:var(--pen-wash)}
+  .fb-card{border-radius:var(--radius);padding:16px;border:1px solid}
+  .fb-card.wrong{border-color:rgba(192,57,43,.25);background:var(--cinnabar-wash)}
+  .fb-card.correct{border-color:rgba(45,122,79,.25);background:rgba(45,122,79,.06)}
+  .fb-head{display:flex;align-items:center;gap:8px}
+  .fb-icon{font-size:20px;font-weight:700}
+  .fb-card.wrong .fb-icon{color:var(--cinnabar)}
+  .fb-card.correct .fb-icon{color:var(--success)}
+  .fb-title{font-family:var(--font-serif);font-size:16px;font-weight:600}
+  .fb-card.wrong .fb-title{color:var(--cinnabar)}
+  .fb-card.correct .fb-title{color:var(--success)}
+  .flip-num{display:inline-block;transition:transform .2s}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 10: 练习结果 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-family:var(--font-serif);font-size:14px;color:var(--ink-muted);letter-spacing:2px">本次练习完成</div>
+    <div style="font-family:var(--font-serif);font-size:28px;font-weight:700;color:var(--ink);margin:6px 0">做得不错！</div>
+    <div style="font-size:13px;color:var(--ink-soft)">12 题完成 · 正确 <strong style="color:var(--success);font-family:var(--font-mono)">9</strong> 题 · 用时 14 分钟</div>
+  </div>
+
+  <!-- 动机B：成长反馈区 -->
+  <div class="card" style="margin-bottom:16px;border-left:4px solid var(--success);background:linear-gradient(135deg,var(--paper-card),rgba(45,122,79,.06))">
+    <div class="card-title" style="color:var(--success)">🎯 本次练习成长</div>
+    <div class="grow-row">
+      <span class="gr-icon">🎯</span>
+      <span class="gr-name">乘法分配律</span>
+      <span class="gr-change"><span class="gr-old">41</span> <span class="gr-arrow">→</span> <span class="gr-new">58</span> <span class="gr-delta">↗ +17</span></span>
+    </div>
+    <div style="font-size:14px;color:var(--ink);margin:8px 0 4px;padding-left:28px">你今天进步很大！</div>
+    <div class="grow-row">
+      <span class="gr-icon">🎯</span>
+      <span class="gr-name">小数加减法</span>
+      <span class="gr-change"><span class="gr-old">72</span> <span class="gr-arrow">→</span> <span class="gr-new">75</span> <span class="gr-delta">↗ +3</span></span>
+    </div>
+    <div style="font-size:12px;color:var(--ink-muted);margin-top:12px;padding:8px 12px;background:var(--paper);border-radius:var(--radius)">再答对 <strong style="color:var(--pen)">4-6</strong> 题，乘法分配律就能掌握了</div>
+  </div>
+
+  <!-- 动机C：连续完成天数 -->
+  <div class="card" style="margin-bottom:16px;text-align:center;background:var(--cinnabar-wash);border-color:rgba(192,57,43,.2)">
+    <div style="font-family:var(--font-serif);font-size:24px;font-weight:700;color:var(--cinnabar)">🔥 连续完成计划 7 天</div>
+    <div style="font-size:13px;color:var(--ink-soft);margin-top:4px">坚持就是胜利，继续保持！</div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-top:12px">
+      <span class="streak-dot done">一</span><span class="streak-dot done">二</span><span class="streak-dot done">三</span><span class="streak-dot done">四</span><span class="streak-dot done">五</span><span class="streak-dot skip">六</span><span class="streak-dot skip">日</span><span class="streak-dot today">今</span>
+    </div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:8px">周末不计入断签，周五完成 → 周一完成仍算连续</div>
+  </div>
+
+  <!-- 详细统计 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">覆盖知识点</div>
+      <div class="kp-mini">乘法分配律 <span class="tag tag-m2">进步中</span></div>
+      <div class="kp-mini">小数加减法 <span class="tag tag-m3">基本熟练</span></div>
+      <div class="kp-mini">运算顺序 <span class="tag tag-m1">需要加强</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">错因分布</div>
+      <div class="err-dist"><span class="ed-bar"><span style="width:50%;background:var(--cinnabar)"></span></span><span class="ed-label">概念混淆 50%</span></div>
+      <div class="err-dist"><span class="ed-bar"><span style="width:33%;background:var(--m2)"></span></span><span class="ed-label">计算失误 33%</span></div>
+      <div class="err-dist"><span class="ed-bar"><span style="width:17%;background:var(--pen)"></span></span><span class="ed-label">符号错误 17%</span></div>
+    </div>
+  </div>
+
+  <!-- 错题回顾 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">本次做错的题（3）</div>
+    <div class="wrong-q" onclick="switchScreen('mistake-detail',null)"><span class="wq-n">1</span><span class="wq-text">25 × (4 + 8) = ?</span><span class="err-tag">概念混淆</span></div>
+    <div class="wrong-q" onclick="switchScreen('mistake-detail',null)"><span class="wq-n">2</span><span class="wq-text">3.75 + 2.4 = ?</span><span class="err-tag t2">计算失误</span></div>
+    <div class="wrong-q" onclick="switchScreen('mistake-detail',null)"><span class="wq-n">3</span><span class="wq-text">-7 + (+4) = ?</span><span class="err-tag t3">符号错误</span></div>
+  </div>
+
+  <!-- 下一步建议 -->
+  <div class="card" style="margin-bottom:16px;background:var(--pen-wash);border-color:var(--pen)">
+    <div class="card-title" style="color:var(--pen)">💡 建议下一步</div>
+    <div style="font-size:13px;color:var(--ink);line-height:1.7">「乘法分配律」进步最大但还不到掌握，建议明天继续练 <strong>4-6 题</strong>巩固。「运算顺序」仍需加强，可去知识点详情看看讲解。</div>
+  </div>
+
+  <div style="display:flex;gap:12px">
+    <button class="btn btn-ghost btn-lg" style="flex:1;justify-content:center" onclick="switchScreen('dashboard',document.querySelector('[data-screen=dashboard]'))">返回首页</button>
+    <button class="btn btn-solid btn-lg" style="flex:1;justify-content:center" onclick="switchScreen('exercise',null)">再来一组</button>
+  </div>
+  <style>
+  .grow-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px}
+  .gr-icon{font-size:18px}
+  .gr-name{font-family:var(--font-serif);font-weight:600;flex:1}
+  .gr-change{font-family:var(--font-mono);font-weight:600;display:flex;align-items:center;gap:6px}
+  .gr-old{color:var(--ink-muted)}
+  .gr-arrow{color:var(--ink-muted)}
+  .gr-new{color:var(--success);font-size:18px}
+  .gr-delta{color:var(--success);font-size:13px}
+  .streak-dot{font-size:11px;font-weight:600;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif)}
+  .streak-dot.done{background:var(--cinnabar);color:#fff}
+  .streak-dot.skip{background:var(--paper-warm);color:var(--ink-muted)}
+  .streak-dot.today{background:var(--cinnabar);color:#fff;box-shadow:0 0 0 3px rgba(192,57,43,.25)}
+  .kp-mini{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--paper-rule);font-size:13px}
+  .kp-mini:last-child{border-bottom:none}
+  .err-dist{margin-bottom:10px}
+  .ed-bar{display:block;height:8px;background:var(--paper-soft);border-radius:4px;overflow:hidden;margin-bottom:4px}
+  .ed-bar span{display:block;height:100%}
+  .ed-label{font-size:12px;color:var(--ink-soft)}
+  .wrong-q{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--paper-rule);cursor:pointer}
+  .wrong-q:last-child{border-bottom:none}
+  .wq-n{width:22px;height:22px;border-radius:50%;background:var(--cinnabar);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:700}
+  .wq-text{flex:1;font-family:var(--font-mono);font-size:13px;font-weight:500}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 11: 错题详情 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-mistake-detail">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <button class="btn btn-soft" style="padding:6px 12px;font-size:13px" onclick="switchScreen('mistakes',document.querySelector('[data-screen=mistakes]'))">← 全部错题</button>
+  </div>
+  <div class="screen-title">错题详情</div>
+  <div class="screen-sub">第六单元测验 · 今天 14:20 · 四年级下 · 沪教版</div>
+
+  <!-- ① 错题题面（含原始错误答案）-->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📝 题目</div>
+    <div class="ex-question" style="margin-bottom:16px">
+      <div class="eq-text">25 × (4 + 8) = ?</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ans-box wrong"><div class="ab-label">你的答案</div><div class="ab-val" style="color:var(--cinnabar);text-decoration:line-through">108</div></div>
+      <div class="ans-box right"><div class="ab-label">正确答案</div><div class="ab-val" style="color:var(--success)">300</div></div>
+    </div>
+  </div>
+
+  <!-- ② AI解析 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">🤖 AI 解析</div>
+    <div style="margin-bottom:14px">
+      <div class="lp-label">错因（两层）</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+        <span class="err-tag">concept_confusion · 概念混淆</span>
+        <span style="font-size:13px;color:var(--ink-soft)">｜</span>
+        <span style="font-size:13px;color:var(--ink)">只乘了一边，漏乘了 8</span>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="lp-label">错因解释</div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.7;margin-top:6px">你在计算 25×(4+8) 时，先算 4+8=12，然后用 25×4=100，最后 100+8=108。这里<strong>只把 25 乘给了 4，漏乘了 8</strong>。乘法分配律要求括号里的<strong>每一项</strong>都要乘以 25。</div>
+    </div>
+    <div>
+      <div class="lp-label">正确解法（分步）</div>
+      <div class="example" style="margin-top:6px">
+        <div class="ex-line">25 × (4 + 8)</div>
+        <div class="ex-line">= 25×4 + 25×8 <span class="ex-note">← 分配律：两边都乘</span></div>
+        <div class="ex-line">= 100 + 200</div>
+        <div class="ex-line ex-ans">= <strong>300</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 关联知识点 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📍 关联知识点</div>
+    <div class="kp-mini" style="cursor:pointer" onclick="switchScreen('knowledge-detail',null)">
+      <span style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--font-serif);font-weight:600">乘法分配律</span></span>
+      <span style="display:flex;align-items:center;gap:10px"><span class="tag tag-m1">需要加强</span><span style="color:var(--pen)">查看讲解 →</span></span>
+    </div>
+  </div>
+
+  <!-- ④ 来源信息 -->
+  <div class="card" style="margin-bottom:16px;padding:14px 18px">
+    <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft)">
+      <span>来源：<strong style="color:var(--ink)">第六单元测验</strong></span>
+      <span>拍摄：<strong style="color:var(--ink)">今天 14:20</strong></span>
+      <span>学期：<strong style="color:var(--ink)">四年级下</strong></span>
+      <span style="color:var(--pen);cursor:pointer" onclick="switchScreen('paper-detail',null)">回到试卷详情 →</span>
+    </div>
+  </div>
+
+  <!-- ⑤ 类似题入口 -->
+  <div class="card" style="margin-bottom:16px;background:var(--pen-wash);border-color:var(--pen);text-align:center">
+    <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:6px">再出 3 道类似题</div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">基于这道错题和「概念混淆」错因，即时巩固</div>
+    <button class="btn btn-solid btn-big" onclick="switchScreen('exercise',null)">出类似题 →</button>
+  </div>
+
+  <!-- ⑥ 类似错题 -->
+  <div class="card">
+    <div class="card-title">同错因的其他错题</div>
+    <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag">概念混淆</span><span class="rel-q">36 × (10 - 2) = ?</span><span class="rel-time">6/20</span></div>
+    <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag">概念混淆</span><span class="rel-q">102 × 35 = ?</span><span class="rel-time">6/14</span></div>
+    <div class="rel-item" onclick="switchScreen('mistake-detail',null)"><span class="err-tag">概念混淆</span><span class="rel-q">48 × 99 + 48 = ?</span><span class="rel-time">6/8</span></div>
+  </div>
+  <style>
+  .ans-box{text-align:center;padding:14px;border-radius:var(--radius);border:1px solid}
+  .ans-box.wrong{background:var(--cinnabar-wash);border-color:rgba(192,57,43,.2)}
+  .ans-box.right{background:rgba(45,122,79,.06);border-color:rgba(45,122,79,.2)}
+  .ab-label{font-size:11px;color:var(--ink-muted);margin-bottom:6px}
+  .ab-val{font-family:var(--font-mono);font-size:24px;font-weight:700}
+  </style>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCREEN 12: 我的·学习统计 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-stats">
+  <div class="screen-title">我的学习</div>
+  <div class="screen-sub">本学期（四年级下）的学习状态 · 不含账号管理</div>
+
+  <!-- 学习状态摘要 -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center">
+      <div class="sum-box"><div class="sum-num" style="color:var(--cinnabar)">7</div><div class="sum-label">连续完成<br>计划天数</div></div>
+      <div class="sum-box"><div class="sum-num" style="color:var(--pen)">62</div><div class="sum-label">平均<br>掌握度</div></div>
+      <div class="sum-box"><div class="sum-num" style="color:var(--success)">3</div><div class="sum-label">本周进步<br>知识点</div></div>
+    </div>
+    <style>
+    .sum-box{padding:14px 8px}
+    .sum-num{font-family:var(--font-serif);font-size:34px;font-weight:700;line-height:1}
+    .sum-label{font-size:11px;color:var(--ink-muted);margin-top:8px;line-height:1.4}
+    </style>
+  </div>
+
+  <!-- 本学期学习日历（GitHub式）-->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📅 本学期学习日历<span style="margin-left:auto;font-size:11px;color:var(--ink-muted);font-family:var(--font-sans);font-weight:400">2/26 - 6/30 · 展示坚持节奏</span></div>
+    <div class="cal-months"><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend"><span class="cl-label">少</span><span class="cl-cell l0"></span><span class="cl-cell l1"></span><span class="cl-cell l2"></span><span class="cl-cell l3"></span><span class="cl-cell l4"></span><span class="cl-label">多</span><span style="margin-left:16px;color:var(--cinnabar);font-size:11px">● 今天</span></div>
+    <style>
+    .cal-months{display:flex;gap:4px;font-size:10px;color:var(--ink-muted);margin-bottom:6px;padding-left:0}
+    .cal-months span{flex:1}
+    .cal-grid{display:flex;flex-wrap:wrap;gap:3px}
+    .cal-cell{width:13px;height:13px;border-radius:2px;flex-shrink:0}
+    .cal-cell.l0{background:var(--paper-soft)}
+    .cal-cell.l1{background:rgba(30,77,140,.25)}
+    .cal-cell.l2{background:rgba(30,77,140,.5)}
+    .cal-cell.l3{background:rgba(30,77,140,.75)}
+    .cal-cell.l4{background:var(--pen)}
+    .cal-cell.today{outline:2px solid var(--cinnabar);outline-offset:1px}
+    .cal-legend{display:flex;align-items:center;gap:4px;margin-top:12px;font-size:11px;color:var(--ink-muted)}
+    .cl-cell{width:13px;height:13px;border-radius:2px}
+    .cl-label{font-size:10px}
+    </style>
+  </div>
+
+  <!-- 知识点分类掌握概览 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📊 知识点分类掌握概览</div>
+    <div class="cat-overview">
+      <div class="co-cat"><div class="co-name">数与运算</div><div class="co-bar"><span class="co-seg m1" style="width:35%"></span><span class="co-seg m2" style="width:25%"></span><span class="co-seg m3" style="width:20%"></span><span class="co-seg m5" style="width:20%"></span></div><div class="co-count">8 个</div></div>
+      <div class="co-legend"><span class="tag tag-m1">需要加强 3</span><span class="tag tag-m2">进步中 2</span><span class="tag tag-m3">基本熟练 2</span><span class="tag tag-m5">已掌握 1</span></div>
+    </div>
+    <div class="cat-overview">
+      <div class="co-cat"><div class="co-name">图形与几何</div><div class="co-bar"><span class="co-seg m2" style="width:50%"></span><span class="co-seg m3" style="width:50%"></span></div><div class="co-count">4 个</div></div>
+    </div>
+    <div class="cat-overview">
+      <div class="co-cat"><div class="co-name">统计概率</div><div class="co-bar"><span class="co-seg m3" style="width:100%"></span></div><div class="co-count">2 个</div></div>
+    </div>
+    <div class="cat-overview">
+      <div class="co-cat"><div class="co-name">综合应用</div><div class="co-bar"><span class="co-seg m1" style="width:100%"></span></div><div class="co-count">1 个</div></div>
+    </div>
+    <style>
+    .cat-overview{margin-bottom:14px}
+    .co-cat{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+    .co-name{font-family:var(--font-serif);font-size:13px;font-weight:600;width:80px;flex-shrink:0}
+    .co-bar{flex:1;height:20px;display:flex;border-radius:var(--radius);overflow:hidden;border:1px solid var(--paper-rule)}
+    .co-seg{height:100%;transition:width .3s}
+    .co-seg.m1{background:var(--m1)}.co-seg.m2{background:var(--m2)}.co-seg.m3{background:var(--m3)}.co-seg.m4{background:var(--m4)}.co-seg.m5{background:var(--m5)}
+    .co-count{font-size:12px;color:var(--ink-muted);width:50px;text-align:right;flex-shrink:0;font-family:var(--font-mono)}
+    .co-legend{display:flex;gap:8px;flex-wrap:wrap;padding-left:92px}
+    </style>
+  </div>
+
+  <!-- 未掌握知识点走势 -->
+  <div class="card">
+    <div class="card-title">📉 未掌握知识点走势<span style="margin-left:auto;font-size:11px;color:var(--ink-muted);font-family:var(--font-sans);font-weight:400">最近 12 周 · 本周 <strong style="color:var(--cinnabar)">4 个</strong></span></div>
+    <div class="trend-chart">
+      <svg viewBox="0 0 600 200" style="width:100%;height:auto">
+        <line x1="40" y1="40" x2="580" y2="40" stroke="#E6E0CC" stroke-width="1"/>
+        <line x1="40" y1="90" x2="580" y2="90" stroke="#E6E0CC" stroke-width="1"/>
+        <line x1="40" y1="140" x2="580" y2="140" stroke="#E6E0CC" stroke-width="1"/>
+        <text x="32" y="44" text-anchor="end" font-size="10" fill="#8B8676" font-family="monospace">10</text>
+        <text x="32" y="94" text-anchor="end" font-size="10" fill="#8B8676" font-family="monospace">6</text>
+        <text x="32" y="144" text-anchor="end" font-size="10" fill="#8B8676" font-family="monospace">2</text>
+        <polyline points="55,90 100,102.5 145,102.5 190,115 235,127.5 280,115 325,140 370,140 415,152.5 460,140 505,152.5 550,152.5"
+          fill="none" stroke="#C0392B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <g fill="#C0392B">
+          <circle cx="55" cy="90" r="3"/><circle cx="100" cy="102.5" r="3"/><circle cx="145" cy="102.5" r="3"/><circle cx="190" cy="115" r="3"/><circle cx="235" cy="127.5" r="3"/><circle cx="280" cy="115" r="3"/><circle cx="325" cy="140" r="3"/><circle cx="370" cy="140" r="3"/><circle cx="415" cy="152.5" r="3"/><circle cx="460" cy="140" r="3"/><circle cx="505" cy="152.5" r="3"/>
+          <circle cx="550" cy="152.5" r="4.5" fill="#C0392B" stroke="#FBF8EE" stroke-width="2"/>
+        </g>
+        <text x="550" y="172" text-anchor="middle" font-size="10" fill="#C0392B" font-weight="600" font-family="monospace">4</text>
+        <g font-size="9" fill="#8B8676" font-family="monospace" text-anchor="middle">
+          <text x="55" y="190">W1</text><text x="190" y="190">W4</text><text x="325" y="190">W7</text><text x="460" y="190">W10</text><text x="550" y="190">本周</text>
+        </g>
+      </svg>
+    </div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:10px;text-align:center">未掌握知识点从 9 个降到 4 个，坚持练习在起作用</div>
+  </div>
+</div>
+
+    </div><!-- /main-body -->
+  </main>
+</div><!-- /device -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// 交互脚本
+// ═══════════════════════════════════════════════════════
+
+// 切换屏幕
+function switchScreen(name,navBtn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('screen-'+name);
+  if(el)el.classList.add('active');
+  if(navBtn){
+    document.querySelectorAll('.nav-item[data-screen]').forEach(n=>n.classList.remove('active'));
+    navBtn.classList.add('active');
+  }
+  document.getElementById('mainBody').scrollTop=0;
+}
+
+// 设置抽屉
+function openDrawer(){document.getElementById('drawer').classList.add('show');document.getElementById('drawerOverlay').classList.add('show')}
+function closeDrawer(){document.getElementById('drawer').classList.remove('show');document.getElementById('drawerOverlay').classList.remove('show')}
+function pickSet(el){el.parentElement.querySelectorAll('.set-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
+
+// 登录选人
+function pickWho(el){el.parentElement.querySelectorAll('.who-pick').forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
+
+// 掌握度对数映射（PRD: log(1+score×9)/log(1+90×9)）
+function masteryPct(score){
+  return Math.round(Math.log(1+score*9)/Math.log(1+90*9)*100);
+}
+// 掌握度档位（返回 m1-m5 class）
+function masteryTag(score){
+  if(score>=90)return 'm5';if(score>=85)return 'm4';if(score>=65)return 'm3';if(score>=30)return 'm2';return 'm1';
+}
+function masteryLabel(score){
+  if(score>=90)return '已掌握';if(score>=85)return '接近掌握';if(score>=65)return '基本熟练';if(score>=30)return '进步中';return '需要加强';
+}
+
+// JS_INSERT
+
+// ── 答题流 ──
+let ansBuffer='';
+function inputAns(v){
+  ansBuffer+=v;
+  const d=document.getElementById('ansDisplay');
+  d.textContent=ansBuffer;d.classList.add('filled');
+}
+function clearAns(){
+  ansBuffer='';
+  const d=document.getElementById('ansDisplay');
+  d.textContent='点击输入';d.classList.remove('filled');
+}
+function submitAns(){
+  if(!ansBuffer){return;}
+  document.getElementById('ansArea').style.display='none';
+  document.getElementById('feedbackArea').style.display='block';
+  // 本题预设为答错(108)，演示反馈；答对时进度条翻牌
+  if(ansBuffer.trim()==='300'){
+    showCorrect();
+  }
+}
+function showCorrect(){
+  const fa=document.getElementById('feedbackArea');
+  fa.innerHTML='<div class="fb-card correct">'+
+    '<div class="fb-head"><span class="fb-icon">✓</span><span class="fb-title">答对了！</span></div>'+
+    '<div style="font-size:13px;color:var(--ink-soft);margin:10px 0">25×4+25×8=100+200=300，分配律用得很好！</div>'+
+    '<div style="font-size:12px;color:var(--success);background:rgba(45,122,79,.08);padding:8px 12px;border-radius:var(--radius)">掌握度 41 → 58 ↗ +17</div>'+
+    '<button class="btn btn-solid btn-big" style="margin-top:14px" onclick="nextQ()">下一题 →</button></div>';
+  flipProgress();
+}
+// 动机A：答对后进度条前进 + 数字翻牌（PRD 200ms ease-out）
+function flipProgress(){
+  const fill=document.getElementById('masteryFill');
+  const num=document.getElementById('remainNum');
+  let cur=parseFloat(fill.style.width)||38;
+  let remain=parseInt(num.textContent)||3;
+  if(remain>0){
+    remain--;
+    cur=Math.min(100,cur+8);
+    fill.style.width=cur+'%';
+    // 数字翻牌动画
+    num.style.transform='translateY(-8px)';num.style.opacity='0';
+    setTimeout(()=>{num.textContent=remain;num.style.transform='translateY(0)';num.style.opacity='1';},100);
+  }
+  if(remain===0){
+    setTimeout(()=>{
+      const pc=document.getElementById('progressCard');
+      pc.innerHTML='<div style="text-align:center;padding:6px;font-family:var(--font-serif);font-weight:700;color:var(--success)">🎉 乘法分配律已掌握！</div>';
+    },600);
+  }
+}
+function retryQ(){
+  clearAns();
+  document.getElementById('ansArea').style.display='block';
+  document.getElementById('feedbackArea').style.display='none';
+}
+function nextQ(){
+  // 演示：跳到结果页
+  switchScreen('result',null);
+}
+
+// ── 学习日历生成（GitHub contribution 风格）──
+  const grid=document.getElementById('calGrid');
+  if(!grid)return;
+  // 18周 × 7天 = 126格，模拟一学期；大部分有练习记录
+  const levels=[0,1,1,2,2,3,4]; // 概率权重
+  for(let w=0;w<18;w++){
+    for(let d=0;d<7;d++){
+      const cell=document.createElement('span');
+      let lv;
+      // 周末概率低一些
+      if(d>=5){lv=Math.random()<0.5?0:levels[Math.floor(Math.random()*3)];}
+      else{lv=levels[Math.floor(Math.random()*levels.length)];}
+      // 最近一周(本周)高亮今天
+      if(w===17&&d===1){cell.classList.add('today');lv=4;}
+      cell.className='cal-cell l'+lv;
+      grid.appendChild(cell);
+    }
+  }
+})();
+
+// ── 筛选 chip 单选切换 ──
+document.querySelectorAll('.filter-group').forEach(fg=>{
+  fg.querySelectorAll('.fchip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      fg.querySelectorAll('.fchip').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel');
+    });
+  });
+});
+
+// 家庭码输入框自动跳转
+document.querySelectorAll('#codeInputs input').forEach((inp,i,arr)=>{
+  inp.addEventListener('input',()=>{if(inp.value&&i<arr.length-1)arr[i+1].focus()});
+});
+</script>
+</body>
+</html>
