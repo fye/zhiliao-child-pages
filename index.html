@@ -39,8 +39,11 @@ body{
 .card-ico{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
 .card-ico.parent{background:#edf3ef;color:#17796f}
 .card-ico.child{background:#fff1d0;color:#8a5a00}
+.card-ico.child-v5{background:#1a3a5c;color:#f5ecd9}
 .card-title{font-size:17px;font-weight:1000}
 .card-tag{display:inline-block;font-size:11px;font-weight:900;color:#9a9487;background:#ece3d5;padding:2px 8px;border-radius:999px;margin-top:3px}
+.card-tag.new{color:#b8341f;background:#fde8e3}
+.card-tag.legacy{color:#9a9487;background:#ece3d5}
 .card-desc{font-size:13px;color:#6f7480;line-height:1.6;font-weight:600;flex:1}
 .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid rgba(228,222,209,0.7)}
 .card-stat{font-size:12px;color:#9a9487;font-weight:700}
@@ -66,6 +69,25 @@ body{
 </div>
 
 <div class="cards">
+  <!-- 小孩端 v5（最新） -->
+  <a class="card" href="child-web-v5.html">
+    <div class="card-head">
+      <div class="card-ico child-v5">✒️</div>
+      <div>
+        <div class="card-title">小孩端 · Pad/PC v5（纸本墨色）</div>
+        <div class="card-tag new">最新 · 桌面端 · 12 屏</div>
+      </div>
+    </div>
+    <div class="card-desc">全新视觉系统「纸本墨色」：草稿纸米黄 + 钢笔蓝 + 红朱砂 + 田字格网格。严格对齐 PRD 4.4.2，覆盖完整学习闭环：行为语言导航、学生动机 A+B+C、反游戏化、掌握度 5 档对数进度条、错因两层分类、衰减探针、横幅兜底。</div>
+    <div class="card-screen-list">
+      <span>登录</span><span>训练工作台</span><span>训练</span><span>全部错题</span><span>我的试卷</span><span>试卷详情</span><span>错题知识点</span><span>知识点讲解</span><span>答题</span><span>练习结果</span><span>错题详情</span><span>学习统计</span>
+    </div>
+    <div class="card-foot">
+      <div class="card-stat">更新于 2026-06-23</div>
+      <div class="card-go">查看 ›</div>
+    </div>
+  </a>
+
   <!-- 家长端 -->
   <a class="card" href="mobile-parent/">
     <div class="card-head">
@@ -85,21 +107,21 @@ body{
     </div>
   </a>
 
-  <!-- 小孩端 -->
+  <!-- 小孩端 v4（早期版本） -->
   <a class="card" href="child-portal.html">
     <div class="card-head">
       <div class="card-ico child">💻</div>
       <div>
-        <div class="card-title">小孩端 · Pad/PC Portal</div>
-        <div class="card-tag">桌面端 · 三主题对比</div>
+        <div class="card-title">小孩端 · Pad/PC Portal（v4 早期版）</div>
+        <div class="card-tag legacy">归档 · 三主题对比</div>
       </div>
     </div>
-    <div class="card-desc">学生训练工作台、错题复盘、知识点讲解、练习答题。支持 Cosmic / Island / Forest 三种主题切换预览。</div>
+    <div class="card-desc">早期版本，已被 v5 纸本墨色版取代。学生训练工作台、错题复盘、知识点讲解、练习答题。支持 Cosmic / Island / Forest 三种主题切换预览。保留供设计演进对比参考。</div>
     <div class="card-screen-list">
       <span>训练首页</span><span>错题知识点</span><span>知识点讲解</span><span>答题</span><span>学习统计</span>
     </div>
     <div class="card-foot">
-      <div class="card-stat">更新于 2026-06-11</div>
+      <div class="card-stat">归档于 2026-06-11</div>
       <div class="card-go">查看 ›</div>
     </div>
   </a>
